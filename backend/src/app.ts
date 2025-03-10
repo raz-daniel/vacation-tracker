@@ -7,6 +7,7 @@ import notFound from "./middlewares/not-found"
 import cors from 'cors'
 import authRouter from "./routers/auth"
 import vacationsRouter from "./routers/vacations"
+import { createAppBucketIfNotExists } from "./aws/aws"
 
 const port = config.get<string>('app.port')
 const name = config.get<string>('app.name')
@@ -17,10 +18,10 @@ const app = express();
 (async () => {
     try {
         console.log(`Trying to Connect to Database: ${db}`)
-
-        await sequelize.sync()
-
+        await sequelize.sync();
         console.log('Database logged in successfully')
+
+        await createAppBucketIfNotExists();
 
         app.use(cors())
         app.use(json())
