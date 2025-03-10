@@ -1,14 +1,15 @@
 import { Sequelize } from "sequelize-typescript";
 import config from "config";
-import Item from "../model/item";
-import Category from "../model/category";
+import User from "../model/user";
+import Follower from "../model/follower";
+import Vacation from "../model/vacation";
 
 
 const logging = config.get<boolean>('sequelize.logging') ? console.log : false
 
 
 const sequelize = new Sequelize({
-    models: [ Item, Category],
+    models: [ User, Follower, Vacation],
     dialect: 'mysql',
     ...config.get('db'),
     logging

@@ -1,6 +1,6 @@
 import { NextFunction, Response, Request } from "express";
-import Item from "../../model/item";
-import Category from "../../model/category";
+import Item from "../../model/follower";
+import Category from "../../model/user";
 import { Op } from "sequelize";
 import AppError from "../../errors/app-error";
 import { StatusCodes } from "http-status-codes";
