@@ -1,0 +1,75 @@
+.Add {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 30px;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.Add form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.Add .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.Add input, .Add select {
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.Add input:focus, .Add select:focus {
+  border-color: #e61a35;
+  box-shadow: 0 0 5px rgba(230, 26, 53, 0.3);
+  outline: none;
+}
+
+.Add input[type='radio'] {
+  width: auto;
+  margin-right: 5px;
+}
+
+.Add label {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 15px;
+  font-size: 1rem;
+  color: #333;
+}
+
+.Add button {
+  background-color: #e61a35;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.Add button:hover {
+  background-color: #c41025;
+}
+
+.Add button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.Add .error {
+  color: #e61a35;
+  font-size: 0.85rem;
+  margin-top: 5px;
+}

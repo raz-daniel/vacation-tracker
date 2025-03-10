@@ -1,0 +1,19 @@
+{
+    "app": {
+        "port": "3000",
+        "name": "Cloth Store"
+    },
+    "db": {
+        "host": "localhost",
+        "port": 3306,
+        "username": "root",
+        "password": "",
+        "database": "clothstore"
+    },
+    "sequelize": {
+        "logging": true,
+        "sync": {
+            "force": false
+        }
+    }
+}
