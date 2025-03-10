@@ -1,4 +1,4 @@
-import { AllowNull, BelongsToMany, Column, DataType, Default, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AllowNull, BelongsToMany, Column, DataType, Default, Index, Model, PrimaryKey, Table } from "sequelize-typescript";
 import Follower from "./follower";
 import Vacation from "./vacation";
 
@@ -22,6 +22,7 @@ export default class User extends Model {
     @Column(DataType.STRING(40))
     lastName: string
 
+    @Index({ unique: true })
     @AllowNull(false)
     @Column(DataType.STRING(120))
     email: string

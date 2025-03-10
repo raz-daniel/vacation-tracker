@@ -34,7 +34,7 @@ export default class Vacation extends Model {
     @Column(DataType.DECIMAL(10,2))
     price: number
 
-    @AllowNull(true)
+    @AllowNull(false)
     @Column(DataType.TEXT)
     imageUrl: string
 

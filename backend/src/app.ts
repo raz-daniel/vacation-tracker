@@ -5,28 +5,28 @@ import errorLogger from "./middlewares/error/error-logger"
 import errorResponder from "./middlewares/error/error-responder"
 import notFound from "./middlewares/not-found"
 import cors from 'cors'
-import categoryRouter from "./routers/categoriesRouter"
-import itemsRouter from "./routers/itemsRouter"
+import authRouter from "./routers/auth"
+import vacationsRouter from "./routers/vacations"
 
 const port = config.get<string>('app.port')
 const name = config.get<string>('app.name')
-
-
+const db = config.get<string>('db.database')
 
 const app = express();
 
 (async () => {
     try {
-        console.log('Trying to Connect to Database')
+        console.log(`Trying to Connect to Database: ${db}`)
+
         await sequelize.sync()
+
         console.log('Database logged in successfully')
 
         app.use(cors())
-    
         app.use(json())
 
-        app.use('/categories', categoryRouter)
-        app.use('/items', itemsRouter)
+        app.use('/auth', authRouter)
+        app.use('vacations', vacationsRouter)
 
         app.use(notFound)
         app.use(errorLogger)
