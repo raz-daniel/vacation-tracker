@@ -8,6 +8,7 @@ import cors from 'cors'
 import authRouter from "./routers/auth"
 import vacationsRouter from "./routers/vacations"
 import { createAppBucketIfNotExists } from "./aws/aws"
+import fileUpload from "express-fileupload"
 
 const port = config.get<string>('app.port')
 const name = config.get<string>('app.name')
@@ -25,6 +26,7 @@ const app = express();
 
         app.use(cors())
         app.use(json())
+        app.use(fileUpload())
 
         app.use('/auth', authRouter)
         app.use('vacations', vacationsRouter)

@@ -4,6 +4,8 @@ import User from "../../model/user";
 import sequelize from "sequelize/types/sequelize";
 import AppError from "../../errors/app-error";
 import { StatusCodes } from "http-status-codes";
+import { create } from "axios";
+import socket from "../../io/io";
 
 export async function getAllVacations(req: Request, res: Response, next: NextFunction) {
     try {
@@ -35,65 +37,31 @@ export async function createVacation(req: Request<{}, {}, {
     description: string,
     beginDate: Date,
     endDate: Date,
-    price: number
+    price: number,
+    imageUrl?: string
 }>, res: Response, next: NextFunction) {
-    const { destination, description, beginDate, endDate, price } = req.body
-    const { imageUrl } = req.params
+
+    const { imageUrl } = req
+
     try {
         const user = await User.findByPk(req.userId)
-        if (user?.role !== 'admin') 
+        if (user?.role !== 'admin')
             return next(new AppError(StatusCodes.FORBIDDEN, 'Only admins can create vacations'))
 
-
-
-    } catch (error) {
-
-    }
-}
-
-
-/*
-// Get a specific vacation by ID
-export async function getVacationById(req: Request, res: Response, next: NextFunction) {
-    try {
-        const { id } = req.params;
-        const vacation = await Vacation.findByPk(id);
-        
-        if (!vacation) {
-            return next(new AppError(StatusCodes.NOT_FOUND, 'Vacation not found'));
+        const vacationData = {
+            ...req.body,
+            ...(req.imageUrl && { imageUrl: req.imageUrl })
         }
-        
-        res.json(vacation);
-    } catch (error) {
-        next(error);
-    }
-}
 
-// Create a new vacation (admin only)
-export async function createVacation(req: Request, res: Response, next: NextFunction) {
-    try {
-        const { destination, description, beginDate, endDate, price, imageUrl } = req.body;
-        
-        // Check if user is admin
-        const user = await User.findByPk(req.userId);
-        if (user?.role !== 'admin') {
-            return next(new AppError(StatusCodes.FORBIDDEN, 'Only admins can create vacations'));
-        }
-        
-        const vacation = await Vacation.create({
-            destination,
-            description,
-            beginDate,
-            endDate,
-            price,
-            imageUrl
-        });
-        
+        const vacation = await Vacation.create(vacationData)
+        socket.emit('newVacation', vacation)
         res.status(StatusCodes.CREATED).json(vacation);
+
     } catch (error) {
-        next(error);
+        next(error)
     }
 }
+    
 
 // Update an existing vacation (admin only)
 export async function updateVacation(req: Request, res: Response, next: NextFunction) {
@@ -128,6 +96,8 @@ export async function updateVacation(req: Request, res: Response, next: NextFunc
     }
 }
 
+
+/*
 // Delete a vacation (admin only)
 export async function deleteVacation(req: Request, res: Response, next: NextFunction) {
     try {
