@@ -29,7 +29,7 @@ const app = express();
         app.use(fileUpload())
 
         app.use('/auth', authRouter)
-        app.use('vacations', vacationsRouter)
+        app.use('/vacations', vacationsRouter)
 
         app.use(notFound)
         app.use(errorLogger)

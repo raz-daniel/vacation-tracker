@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Vacation from "../../model/vacation";
 import User from "../../model/user";
-import sequelize from "sequelize/types/sequelize";
+import { fn, col } from "sequelize";
 import AppError from "../../errors/app-error";
 import { StatusCodes } from "http-status-codes";
 import { create } from "axios";
@@ -18,11 +18,13 @@ export async function getAllVacations(req: Request, res: Response, next: NextFun
             }],
             attributes: {
                 include: [
-                    [sequelize.fn('COUNT', sequelize.col('followers.id')), 'followerCount']
+                    [fn('COUNT', col('followers.id')), 'followerCount']
                 ]
             },
             group: ['Vacation.id'],
-            order: ['beginDate', 'ASC']
+            order: [
+                ['beginDate', 'ASC']
+            ]
 
         })
         res.json(vacations);
