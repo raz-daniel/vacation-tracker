@@ -5,7 +5,7 @@ export const newVacationValidator = Joi.object({
     description: Joi.string().trim().max(10000).required(),
     beginDate: Joi.date().required(),
     endDate: Joi.date().required(),
-    price: Joi.number().min(0).required()
+    price: Joi.number().min(0).max(10000).required()
 })
 
 export const newVacationParamsValidator = Joi.object({
