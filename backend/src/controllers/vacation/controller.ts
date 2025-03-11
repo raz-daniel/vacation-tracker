@@ -37,8 +37,7 @@ export async function createVacation(req: Request<{}, {}, {
     description: string,
     beginDate: Date,
     endDate: Date,
-    price: number,
-    imageUrl?: string
+    price: number
 }>, res: Response, next: NextFunction) {
 
     const { imageUrl } = req
@@ -50,7 +49,7 @@ export async function createVacation(req: Request<{}, {}, {
 
         const vacationData = {
             ...req.body,
-            ...(req.imageUrl && { imageUrl: req.imageUrl })
+            ...(imageUrl && { imageUrl })
         }
 
         const vacation = await Vacation.create(vacationData)
@@ -61,65 +60,65 @@ export async function createVacation(req: Request<{}, {}, {
         next(error)
     }
 }
-    
 
-// Update an existing vacation (admin only)
-export async function updateVacation(req: Request, res: Response, next: NextFunction) {
+export async function updateVacation(req: Request<{ id: string }, {}, {
+    destination?: string;
+    description?: string;
+    beginDate?: Date;
+    endDate?: Date;
+    price?: number;
+}>, res: Response, next: NextFunction) {
+
+    const { imageUrl } = req
+    const { id } = req.params
+
     try {
-        const { id } = req.params;
-        const { destination, description, beginDate, endDate, price, imageUrl } = req.body;
-        
-        // Check if user is admin
-        const user = await User.findByPk(req.userId);
-        if (user?.role !== 'admin') {
-            return next(new AppError(StatusCodes.FORBIDDEN, 'Only admins can update vacations'));
+
+        const user = await User.findByPk(req.userId)
+        if (user.role !== 'admin') {
+            return next(new AppError(StatusCodes.FORBIDDEN, 'Only admins can update vacations'))
         }
-        
-        const vacation = await Vacation.findByPk(id);
-        
+
+        const vacation = await Vacation.findByPk(id)
         if (!vacation) {
             return next(new AppError(StatusCodes.NOT_FOUND, 'Vacation not found'));
         }
-        
-        await vacation.update({
-            destination,
-            description,
-            beginDate,
-            endDate,
-            price,
-            imageUrl
-        });
-        
+
+        const updatedData = {
+            ...req.body,
+            ...(req.imageUrl && { imageUrl })
+        }
+
+        await vacation.update(updatedData);
+        socket.emit("updateVacation", vacation)
         res.json(vacation);
+
     } catch (error) {
-        next(error);
+        next(error)
     }
+
 }
 
 
-/*
-// Delete a vacation (admin only)
-export async function deleteVacation(req: Request, res: Response, next: NextFunction) {
+export async function deleteVacation(req: Request<{id: string}>, res: Response, next: NextFunction) {
+    const { id } = req.params;
+
     try {
-        const { id } = req.params;
-        
-        // Check if user is admin
         const user = await User.findByPk(req.userId);
         if (user?.role !== 'admin') {
             return next(new AppError(StatusCodes.FORBIDDEN, 'Only admins can delete vacations'));
         }
-        
+
         const vacation = await Vacation.findByPk(id);
-        
+
         if (!vacation) {
             return next(new AppError(StatusCodes.NOT_FOUND, 'Vacation not found'));
         }
-        
+
         await vacation.destroy();
-        
+        socket.emit('deleteVacation', id);
         res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         next(error);
     }
 }
-    */

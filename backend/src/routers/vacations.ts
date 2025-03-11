@@ -1,14 +1,19 @@
 import { Router } from "express"
 import enforceAuth from "../middlewares/enforce-auth";
-import { getAllVacations } from "../controllers/vacation/controller";
+import { createVacation, deleteVacation, getAllVacations, updateVacation } from "../controllers/vacation/controller";
+import validation from "../middlewares/validation";
+import { deleteVacationParamsValidator, newVacationFileValidator, newVacationValidator, updatedVacationParamsValidator, updateVacationFileValidator, updateVacationValidator } from "../controllers/vacation/validator";
+import paramsValidation from "../middlewares/param-validation";
+import filesValidation from "../middlewares/files-validation";
+import fileUploader from "../middlewares/file-uploader";
+
 
 const vacationsRouter = Router()
 
 vacationsRouter.use(enforceAuth);
 vacationsRouter.get('/', getAllVacations)
-vacationsRouter.get('/:id')
-vacationsRouter.post('/')
-vacationsRouter.delete('/:id')
-vacationsRouter.patch('/:id')
+vacationsRouter.post('/', validation(newVacationValidator), filesValidation(newVacationFileValidator), fileUploader, createVacation)
+vacationsRouter.delete('/:id', paramsValidation(deleteVacationParamsValidator), deleteVacation)
+vacationsRouter.put('/:id', paramsValidation(updatedVacationParamsValidator), validation(updateVacationValidator), filesValidation(updateVacationFileValidator),fileUploader, updateVacation)
 
 export default vacationsRouter
