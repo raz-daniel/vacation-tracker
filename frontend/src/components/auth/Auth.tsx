@@ -28,7 +28,7 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
                 dispatch(setUser(userData));
             } catch (error) {
                 console.error('Invalid token', error);
-                /* logout - because eslint is making a warning when just putting logout, and it is over killing to solve that
+                /*  logout - because eslint is making a warning when just putting logout, and it is over killing to solve that
                 i can extract authContext to a separate file in Auth, and create a useCallback for the logout function
                 and making a clearer initial mode for useContext instead of putting !. but it's an over kill so
                 DRY seems like an easier solution to fix the eslint msg. or deleting eslint which is not an options for me */

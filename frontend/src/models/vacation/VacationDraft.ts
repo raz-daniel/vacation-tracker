@@ -4,5 +4,5 @@ export default interface VacationDraft {
     beginDate: Date
     endDate: Date
     price: number
-    imageUrl: string
+    imageUrl: File | string
 }

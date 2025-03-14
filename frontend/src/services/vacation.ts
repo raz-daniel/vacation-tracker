@@ -13,26 +13,36 @@ export default class VacationService extends AuthAware {
         return response.data;
     }
 
+    async getUpcomingVacations(): Promise<Vacation[]> {
+        const response = await this.axiosInstance.get<Vacation[]>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/upcoming`);
+        return response.data;
+    }
+
+    async getCurrentVacations(): Promise<Vacation[]> {
+        const response = await this.axiosInstance.get<Vacation[]>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/current`);
+        return response.data;
+    }
+
     async addVacation(vacation: VacationDraft): Promise<Vacation> {
-        const response = await this.axiosInstance.post<Vacation>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations`, vacation);
+        const response = await this.axiosInstance.post<Vacation>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations`, vacation, {
+                headers: {
+                    "Content-Type": 'multipart/form-data'
+                }
+        })
         return response.data;
     }
 
     async updateVacation(id: string, vacation: VacationDraft): Promise<Vacation> {
-        const response = await this.axiosInstance.put<Vacation>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/${id}`, vacation);
+        const response = await this.axiosInstance.put<Vacation>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/${id}`, vacation, {
+            headers: {
+                "Content-Type": 'multipart/form-data'
+            }
+    })
         return response.data;
     }
 
     async deleteVacation(id: string): Promise<void> {
         await this.axiosInstance.delete(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/${id}`);
-    }
-
-    async followVacation(id: string): Promise<void> {
-        await this.axiosInstance.post(`${import.meta.env.VITE_REST_SERVER_URL}/followers/${id}`);
-    }
-
-    async unfollowVacation(id: string): Promise<void> {
-        await this.axiosInstance.delete(`${import.meta.env.VITE_REST_SERVER_URL}/followers/${id}`);
     }
 
     async exportVacations(): Promise<Blob> {
