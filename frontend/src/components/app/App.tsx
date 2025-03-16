@@ -4,6 +4,9 @@ import 'primereact/resources/themes/lara-light-indigo/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 import './App.css'
+import { Provider } from 'react-redux';
+import Auth from '../auth/auth/Auth';
+import store from '../../redux/store';
 
 
 export default function App(): JSX.Element {
@@ -11,9 +14,11 @@ export default function App(): JSX.Element {
   return (
     <div className='App'>
       <BrowserRouter>
-       
-            <Layout />
-          
+        <Provider store={store}>
+          <Auth>
+              <Layout />
+          </Auth>
+        </Provider>
       </BrowserRouter>
     </div>
   )

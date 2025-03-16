@@ -5,8 +5,9 @@ export default function NotFound(): JSX.Element {
   return (
     <div className='NotFound'>
       <h1>404</h1>
+      <h2>Page Not Found</h2>
       <p>Oops! The page you're looking for doesn't exist.</p>
-      <Link to="/home" className="back-link">Back to Home</Link>
+      <Link to="/">Back to Vacations</Link>
     </div>
   );
 }

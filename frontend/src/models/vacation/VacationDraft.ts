@@ -1,8 +1,6 @@
-export default interface VacationDraft {
-    destination: string
-    description: string
-    beginDate: Date
-    endDate: Date
-    price: number
-    imageUrl: File | string
+import VacationBase from "./VacationBase";
+
+export default interface VacationDraft extends VacationBase {
+
+    imageFile: File
 }

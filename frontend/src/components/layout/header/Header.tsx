@@ -1,43 +1,35 @@
+import { useContext } from 'react'
 import './Header.css'
 import { NavLink, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
-import LogoImage from '../../../assets/clothStoreLogo.jpg'
+import { AuthContext } from '../../auth/auth/Auth'
 
 export default function Header(): JSX.Element {
 
-    const [searchTerm, setSearchTerm] = useState<string>('')
+    const { logout } = useContext(AuthContext)!
     const navigate = useNavigate()
 
-    function handleSearch() {
-        if (searchTerm.trim()) {
-            navigate(`/items/list?search=${encodeURIComponent(searchTerm)}`)
-        }
+    const handleLogout = () => {
+        logout()
+        navigate('/auth/login')
     }
 
     return (
         <div className='Header'>
-            <div>
-                <img src={LogoImage} />
+
+            <div className='logo'>
+                <h1>Vacation Tracker</h1>
             </div>
+
             <div>
                 <nav>
-                    <NavLink to="items/list">Store</NavLink>
-                    <NavLink to="items/add">Add Item</NavLink>
-                    <NavLink to="/home">Home</NavLink>
+                    <NavLink to="/vacations">Vacations</NavLink>
+                    {/* {isAdmin && <NavLink to="/admin">Admin</NavLink>} */}
                 </nav>
             </div>
-            <div>
-                <form onSubmit={(e) => {
-                    e.preventDefault()
-                    handleSearch()
-                }}>
-                    <input
-                        placeholder='search item...'
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                    <button type='submit'>Search</button>
-                </form>
+
+            <div className='user-controls'>
+                {/* <span>Welcome, {currentUser?.firstName}</span> */}
+                <button onClick={handleLogout}>Logout</button>
             </div>
 
         </div>

@@ -1,9 +1,8 @@
 import './Auth.css';
 import { PropsWithChildren, useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import { jwtDecode } from 'jwt-decode';
-import User from '../../models/user/User';
-import { setUser, clearUser } from '../../redux/userSlice';
+// import { jwtDecode } from 'jwt-decode';
+// import User from '../../../models/user/User';
 import { createContext } from 'react';
 
 export interface AuthContextInterface {
@@ -24,8 +23,8 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
     useEffect(() => {
         if (jwt) {
             try {
-                const userData = jwtDecode<User>(jwt);
-                dispatch(setUser(userData));
+                // const userData = jwtDecode<User>(jwt);
+                // dispatch(setUser(userData));
             } catch (error) {
                 console.error('Invalid token', error);
                 /*  logout - because eslint is making a warning when just putting logout, and it is over killing to solve that
@@ -34,7 +33,7 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
                 DRY seems like an easier solution to fix the eslint msg. or deleting eslint which is not an options for me */
                 localStorage.removeItem(JWT_KEY_NAME);
                 setJwt('');
-                dispatch(clearUser());
+                // dispatch(clearUser());
             }
         }
     }, [dispatch, jwt]);
@@ -44,8 +43,8 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
         localStorage.setItem(JWT_KEY_NAME, jwt);
 
         try {
-            const userData = jwtDecode<User>(jwt);
-            dispatch(setUser(userData));
+            // const userData = jwtDecode<User>(jwt);
+            // dispatch(setUser(userData));
         } catch (error) {
             console.error('Invalid token', error);
         }
@@ -54,7 +53,7 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
     function logout() {
         localStorage.removeItem(JWT_KEY_NAME);
         setJwt('');
-        dispatch(clearUser());
+        // dispatch(clearUser());
     }
 
     return (

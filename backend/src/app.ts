@@ -9,6 +9,7 @@ import authRouter from "./routers/auth"
 import vacationsRouter from "./routers/vacations"
 import { createAppBucketIfNotExists } from "./aws/aws"
 import fileUpload from "express-fileupload"
+import followersRouter from "./routers/followers"
 
 const port = config.get<string>('app.port')
 const name = config.get<string>('app.name')
@@ -30,6 +31,7 @@ const app = express();
 
         app.use('/auth', authRouter)
         app.use('/vacations', vacationsRouter)
+        app.use('/followers', followersRouter)
 
         app.use(notFound)
         app.use(errorLogger)
