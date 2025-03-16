@@ -1,9 +1,8 @@
-import VacationDraft from "./VacationDraft";
+import Like from "../like/Like";
+import VacationBase from "./VacationBase";
 
-export default interface Vacation extends VacationDraft {
+export default interface Vacation extends VacationBase {
     id: string
-    followersCount: number
-    isFollowing: boolean
-    createdAt?: string
-    updatedAt?: string
+    like: Like[]
+    imageUrl: string
 }
