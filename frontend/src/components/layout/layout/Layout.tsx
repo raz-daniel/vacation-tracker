@@ -4,40 +4,37 @@ import Header from '../header/Header'
 import Routing from '../routing/Routing'
 import './Layout.css'
 import { AuthContext } from '../../auth/auth/Auth'
-import { Navigate, Route, Routes } from 'react-router-dom'
 import Register from '../../auth/register/Register'
-import NotFound from '../not-found/NotFound'
 import Login from '../../auth/login/Login'
+import NotFound from '../not-found/NotFound'
+import { Route, Routes, Navigate } from 'react-router-dom'
 
 export default function Layout(): JSX.Element {
-
     const { jwt } = useContext(AuthContext)!
     const isLoggedIn = !!jwt
 
     return (
         <div className='Layout'>
-            {isLoggedIn ? (
-                <>
-                    <header>
-                        <Header />
-                    </header>
+            <header>
+                <Header />
+            </header>
 
-                    <main>
-                        <Routing />
-                    </main>
-                    <footer>
-                        <Footer />
-                    </footer>
-                </>
-            ) : (
-                <Routes>
-                    <Route path="/" element={<Navigate to="/auth/register" />} />
-                    <Route path="/auth/register" element={<Register />} />
-                    <Route path="/auth/login" element={<Login />} />
-                    <Route path="*" element={<NotFound />} />
-                </Routes>
-            )
-            }
+            <main>
+                {isLoggedIn ? (
+                    <Routing />
+                ) : (
+                    <Routes>
+                        <Route path="/" element={<Navigate to="/auth/login" replace />} />
+                        <Route path="/auth/register" element={<Register />} />
+                        <Route path="/auth/login" element={<Login />} />
+                        <Route path="*" element={<NotFound />} />
+                    </Routes>
+                )}
+            </main>
+
+            <footer>
+                <Footer />
+            </footer>
         </div>
     )
 }

@@ -2,106 +2,96 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 30px;
-  background-color: white;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 1rem 2rem;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: 70px;
 }
 
-.Header img {
-  height: 60px;
+.logo-section {
+  flex: 1;
+}
+
+.logo {
+  height: 50px;
   width: auto;
+  object-fit: contain;
 }
 
-.Header nav {
+.nav-section {
+  flex: 2;
   display: flex;
-  gap: 30px;
+  justify-content: center;
+  gap: 2rem;
 }
 
-.Header nav a {
+.auth-section {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 1rem;
+}
+
+.nav-link, .auth-link {
   text-decoration: none;
   color: #333;
   font-weight: 500;
-  font-size: 1.1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
   position: relative;
-  transition: color 0.3s;
 }
 
-.Header nav a:hover {
-  color: #e61a35;
+/* Active state styling */
+.nav-link.active, .auth-link.active {
+  color: #4a90e2;
+  background-color: rgba(74, 144, 226, 0.1);
 }
 
-.Header nav a.active {
-  color: #e61a35;
-}
-
-.Header nav a::after {
+/* Underline effect for active links */
+.nav-link.active::after, .auth-link.active::after {
   content: '';
   position: absolute;
-  bottom: -5px;
+  bottom: 0;
   left: 0;
-  width: 0;
-  height: 2px;
-  background-color: #e61a35;
-  transition: width 0.3s;
-}
-
-.Header nav a:hover::after,
-.Header nav a.active::after {
   width: 100%;
+  height: 2px;
+  background-color: #4a90e2;
 }
 
-.Header form {
-  display: flex;
-  gap: 10px;
+.nav-link:hover, .auth-link:hover {
+  background-color: #f5f5f5;
+  color: #4a90e2;
 }
 
-.Header input {
-  padding: 10px 15px;
-  border: 1px solid #e0e0e0;
-  border-radius: 20px;
-  width: 200px;
-  font-size: 0.9rem;
-  outline: none;
-  transition: all 0.3s;
-}
-
-.Header input:focus {
-  border-color: #e61a35;
-  box-shadow: 0 0 5px rgba(230, 26, 53, 0.3);
-}
-
-.Header button {
-  background-color: #e61a35;
+.logout-button {
+  background-color: #4a90e2;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 20px;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.3s;
+  transition: background-color 0.2s;
 }
 
-.Header button:hover {
-  background-color: #c41025;
+.logout-button:hover {
+  background-color: #357abd;
 }
 
+/* Responsive design */
 @media (max-width: 768px) {
   .Header {
-    flex-direction: column;
-    gap: 15px;
-    padding: 15px;
+    padding: 1rem;
   }
-  
-  .Header nav {
-    gap: 15px;
+
+  .nav-section {
+    display: none;
   }
-  
-  .Header form {
-    width: 100%;
-  }
-  
-  .Header input {
-    flex-grow: 1;
+
+  .logo {
+    height: 40px;
   }
 }
 
@@ -126,4 +116,10 @@
   border: 1px solid #e0e0e0;
   background: white;
   width: 100%;
+}
+
+.welcome-text {
+  color: #333;
+  font-weight: 500;
+  margin-right: 1rem;
 }
