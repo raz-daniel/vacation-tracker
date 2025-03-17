@@ -4,7 +4,7 @@ import Vacation from "../models/vacation/Vacation";
 
 export enum FilterType {
     ALL = 'all',
-    LIKE = 'like',
+    FOLLOWED = 'followed',
     UPCOMING = 'upcoming',
     CURRENT = 'current'
 }
