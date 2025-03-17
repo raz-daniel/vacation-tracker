@@ -6,7 +6,7 @@ import { createContext } from 'react';
 
 export interface AuthContextInterface {
     jwt: string;
-    name: string | null;
+    firstName: string | null;
     role: UserRole | null;
     isLoading: boolean;
     newLogin(jwt: string): void;
@@ -18,7 +18,7 @@ export const AuthContext = createContext<AuthContextInterface | null>(null)!;
 export default function Auth(props: PropsWithChildren): JSX.Element {
     const JWT_KEY_NAME = 'jwt';
     const [jwt, setJwt] = useState<string>(localStorage.getItem(JWT_KEY_NAME) || '');
-    const [name, setName] = useState<string | null>(null);
+    const [firstName, setFirstName] = useState<string | null>(null);
     const [role, setRole] = useState<UserRole | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const { children } = props;
@@ -27,7 +27,7 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
         if (jwt) {
             try {
                 const userData = jwtDecode<User>(jwt);
-                setName(userData.firstName);
+                setFirstName(userData.firstName);
                 setRole(userData.role);
             } catch (error) {
                 console.error('Invalid token on init', error);
@@ -42,24 +42,24 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
             const userData = jwtDecode<User>(jwt);
             setJwt(jwt);
             localStorage.setItem(JWT_KEY_NAME, jwt);
-            setName(userData.firstName);
+            setFirstName(userData.firstName);
             setRole(userData.role);
         } catch (error) {
-            console.error('Invalid token', error);
+            console.error('Invalid token on new login', error);
             logout();
-            throw new Error('Invalid token');
+            throw new Error('Invalid token on new login');
         }
     }
 
     function logout() {
         localStorage.removeItem(JWT_KEY_NAME);
         setJwt('');
-        setName(null);
+        setFirstName(null);
         setRole(null);
     }
 
     return (
-        <AuthContext.Provider value={{ jwt, name, role, newLogin, logout, isLoading }}>
+        <AuthContext.Provider value={{ jwt, firstName, role, newLogin, logout, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

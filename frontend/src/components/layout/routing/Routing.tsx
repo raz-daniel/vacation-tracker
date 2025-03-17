@@ -29,9 +29,9 @@ export default function Routing(): JSX.Element {
 
             {isAdmin &&
                 <>
-                    <Route path="/admin/chart" element={<Report />} />
-                    <Route path="/admin/add" element={<Add />} />
-                    <Route path="/admin/edit/:id" element={<Edit />} />
+                    <Route path="/vacations/reports" element={<Report />} />
+                    <Route path="/vacations/add" element={<Add />} />
+                    <Route path="/vacations/edit/:id" element={<Edit />} />
                 </>
             }
 

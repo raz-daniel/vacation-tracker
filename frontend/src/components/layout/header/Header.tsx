@@ -6,7 +6,7 @@ import { UserRole } from '../../../models/user/User'
 import logo from '../../../assets/images/vacation_tracker_logo.jpeg'
 
 export default function Header(): JSX.Element {
-    const { jwt, logout, name, role } = useContext(AuthContext)!
+    const { jwt, logout, firstName, role } = useContext(AuthContext)!
     const isLoggedIn = !!jwt
     const isAdmin = role === UserRole.ADMIN
     const navigate = useNavigate()
@@ -81,7 +81,7 @@ export default function Header(): JSX.Element {
                     </>
                 ) : (
                     <>
-                        {name && <span className="welcome-text">Hello {name}</span>}
+                        {firstName && <span className="welcome-text">Hello {firstName}</span>}
                         <button onClick={handleLogout} className="logout-button">
                             Logout
                         </button>

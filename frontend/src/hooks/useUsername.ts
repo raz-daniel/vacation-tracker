@@ -5,7 +5,7 @@ import { AuthContext } from "../components/auth/auth/Auth"
 
 export default function useUsername() {
     const { jwt } = useContext(AuthContext)!
-    // const { name } = jwtDecode<User>(jwt)
+
 
     const name = useMemo(() => {
         const { firstName } = jwtDecode<User>(jwt)

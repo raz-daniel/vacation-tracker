@@ -13,7 +13,6 @@ interface VacationState {
     vacations: Vacation[]
     loading: boolean
     error: string | null
-    isLike: boolean
     filterType: FilterType
 }
 
@@ -21,7 +20,6 @@ const initialState: VacationState = {
     vacations: [],
     loading: false,
     error: null,
-    isLike: false,
     filterType: FilterType.ALL
 };
 
@@ -60,15 +58,14 @@ export const vacationSlice = createSlice({
             state.error = action.payload;
         },
 
-        addLike: (state, action: PayloadAction<{ id: string, isLike: boolean }>) => {
-            const index = state.vacations.findIndex(v => v.id === action.payload.id)
-            if (index !== -1) state.isLike = true
-            
-        },
-
-        removeLike: (state, action: PayloadAction<{ id: string, isLike: boolean }>) => {
-            const index = state.vacations.findIndex(v => v.id === action.payload.id)
-            if (index !== -1) state.isLike = true
+        toggleVacationFollow: (state, action: PayloadAction<string>) => {
+            const vacation = state.vacations.find(v => v.id === action.payload)
+            if (vacation) {
+                const { isFollowedByCurrentUser } = vacation
+                
+                vacation.isFollowedByCurrentUser = !isFollowedByCurrentUser
+                vacation.followerCount += isFollowedByCurrentUser ? 1 : -1
+            }
         }
     }
 });
@@ -81,8 +78,7 @@ export const {
     setFilterType,
     setLoading,
     setError,
-    addLike,
-    removeLike
+    toggleVacationFollow
 } = vacationSlice.actions;
 
 export default vacationSlice.reducer;

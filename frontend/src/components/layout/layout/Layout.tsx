@@ -6,12 +6,11 @@ import './Layout.css'
 import { AuthContext } from '../../auth/auth/Auth'
 import Register from '../../auth/register/Register'
 import Login from '../../auth/login/Login'
-import NotFound from '../not-found/NotFound'
 import { Route, Routes, Navigate } from 'react-router-dom'
 
 export default function Layout(): JSX.Element {
-    const { jwt } = useContext(AuthContext)!
-    const isLoggedIn = !!jwt
+    const { jwt, firstName } = useContext(AuthContext)!
+    const isLoggedIn = !!jwt && !!firstName
 
     return (
         <div className='Layout'>
@@ -27,7 +26,7 @@ export default function Layout(): JSX.Element {
                         <Route path="/" element={<Navigate to="/auth/login" replace />} />
                         <Route path="/auth/register" element={<Register />} />
                         <Route path="/auth/login" element={<Login />} />
-                        <Route path="*" element={<NotFound />} />
+                        <Route path="*" element={<Navigate to="/auth/login" replace />} />
                     </Routes>
                 )}
             </main>

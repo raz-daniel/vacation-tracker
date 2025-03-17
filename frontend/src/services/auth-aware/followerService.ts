@@ -1,4 +1,4 @@
-import AuthAware from "./auth-aware/AuthAware";
+import AuthAware from "./AuthAware";
 
 export default class FollowerService extends AuthAware {
     async followVacation(vacationId: string): Promise<void> {

@@ -1,6 +1,6 @@
-import Vacation from "../models/vacation/Vacation";
-import VacationDraft from "../models/vacation/VacationDraft";
-import AuthAware from "./auth-aware/AuthAware";
+import Vacation from "../../models/vacation/Vacation";
+import VacationDraft from "../../models/vacation/VacationDraft";
+import AuthAware from "./AuthAware";
 
 export default class VacationService extends AuthAware {
     async getAllVacations(): Promise<Vacation[]> {
