@@ -8,8 +8,8 @@ import { sign } from "jsonwebtoken";
 
 function hashPassword(password: string): string {
     return createHmac('sha256', config.get<string>('app.secret'))
-    .update(password)
-    .digest('hex')
+        .update(password)
+        .digest('hex')
 }
 
 export async function register(req: Request<{}, {}, {
@@ -18,7 +18,7 @@ export async function register(req: Request<{}, {}, {
     email: string,
     password: string
 }>, res: Response, next: NextFunction) {
-    const {firstName, lastName, email, password} = req.body
+    const { firstName, lastName, email, password } = req.body
     try {
         const user = await User.create({
             firstName,
@@ -29,16 +29,22 @@ export async function register(req: Request<{}, {}, {
 
         if (!user) return next(new AppError(StatusCodes.UNAUTHORIZED, 'wrong credentials'))
 
-        const jwt = sign(user.get({ plain: true}), config.get<string>('app.jwtSecret'))
+        const jwt = sign(
+            {
+                id: user.id,
+                firstName: user.firstName,
+                role: user.role
+            }
+            , config.get<string>('app.jwtSecret'))
 
-        res.json({jwt})
+        res.json({ jwt })
 
 
     } catch (error) {
 
         if (error.name === 'SequelizeUniqueConstraintError') return next(
             new AppError(
-                StatusCodes.CONFLICT, 
+                StatusCodes.CONFLICT,
                 `Email ${email} already exists.`
             ))
         next(error)
@@ -46,7 +52,7 @@ export async function register(req: Request<{}, {}, {
 }
 
 
-export async function login(req: Request<{}, {}, {email: string, password: string}>, res: Response, next: NextFunction) {
+export async function login(req: Request<{}, {}, { email: string, password: string }>, res: Response, next: NextFunction) {
     try {
         const { email, password } = req.body
         const user = await User.findOne({
@@ -56,9 +62,15 @@ export async function login(req: Request<{}, {}, {email: string, password: strin
             },
         })
 
-        if(!user) return next(new AppError(StatusCodes.UNAUTHORIZED, 'wrong credentials'))
+        if (!user) return next(new AppError(StatusCodes.UNAUTHORIZED, 'wrong credentials'))
 
-        const jwt = sign(user.get({ plain: true }), config.get<string>('app.jwtSecret'))
+        const jwt = sign(
+            {
+                id: user.id,
+                firstName: user.firstName,
+                role: user.role
+            }
+            , config.get<string>('app.jwtSecret'))
 
         res.json({ jwt })
 
