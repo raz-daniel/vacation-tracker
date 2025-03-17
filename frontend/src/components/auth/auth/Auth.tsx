@@ -8,6 +8,7 @@ export interface AuthContextInterface {
     jwt: string;
     name: string | null;
     role: UserRole | null;
+    isLoading: boolean;
     newLogin(jwt: string): void;
     logout(): void;
 }
@@ -19,6 +20,7 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
     const [jwt, setJwt] = useState<string>(localStorage.getItem(JWT_KEY_NAME) || '');
     const [name, setName] = useState<string | null>(null);
     const [role, setRole] = useState<UserRole | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const { children } = props;
 
     useEffect(() => {
@@ -32,7 +34,8 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
                 logout();
             }
         }
-    }, []);
+        setIsLoading(false)
+    }, [jwt]);
 
     function newLogin(jwt: string) {
         try {
@@ -56,7 +59,7 @@ export default function Auth(props: PropsWithChildren): JSX.Element {
     }
 
     return (
-        <AuthContext.Provider value={{ jwt, name, role, newLogin, logout }}>
+        <AuthContext.Provider value={{ jwt, name, role, newLogin, logout, isLoading }}>
             {children}
         </AuthContext.Provider>
     );

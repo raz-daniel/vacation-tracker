@@ -8,6 +8,4 @@ export enum UserRole {
 export default interface User extends Register {
     id: string
     role: UserRole
-    createdAt: string
-    updatedAt: string
 }

@@ -1,4 +1,4 @@
-export default interface Like {
+export default interface Follower {
     vacationId: string
     userId: string
 }
