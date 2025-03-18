@@ -20,7 +20,6 @@ export default function Card({ vacation }: CardProps): JSX.Element {
                     <p>followerCount: {followerCount}</p>
                     <p>isFollowedByCurrentUser: {isFollowedByCurrentUser}</p>
                     <p>id: {id}</p>
-
                 </div>
             </div>
         )

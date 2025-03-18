@@ -1,25 +1,30 @@
 import Vacation from "../../models/vacation/Vacation";
 import VacationDraft from "../../models/vacation/VacationDraft";
+import Pagination from "../../types/Pagination";
 import AuthAware from "./AuthAware";
 
+const defaultPage = 1;
+const defaultLimit = 10;
+
 export default class VacationService extends AuthAware {
-    async getAllVacations(): Promise<Vacation[]> {
-        const response = await this.axiosInstance.get<Vacation[]>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations`);
+
+    async getAllVacations(page = defaultPage, limit = defaultLimit): Promise<Pagination<Vacation>> {
+        const response = await this.axiosInstance.get<Pagination<Vacation>>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations?page=${page}&limit=${limit}`);
         return response.data;
     }
 
-    async getFollowedVacations(): Promise<Vacation[]> {
-        const response = await this.axiosInstance.get<Vacation[]>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/follower`);
+    async getFollowedVacations(page = defaultPage, limit = defaultLimit): Promise<Pagination<Vacation>> {
+        const response = await this.axiosInstance.get<Pagination<Vacation>>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/follower?page=${page}&limit=${limit}`);
         return response.data;
     }
 
-    async getUpcomingVacations(): Promise<Vacation[]> {
-        const response = await this.axiosInstance.get<Vacation[]>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/upcoming`);
+    async getUpcomingVacations(page = defaultPage, limit = defaultLimit): Promise<Pagination<Vacation>> {
+        const response = await this.axiosInstance.get<Pagination<Vacation>>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/upcoming?page=${page}&limit=${limit}`);
         return response.data;
     }
 
-    async getCurrentVacations(): Promise<Vacation[]> {
-        const response = await this.axiosInstance.get<Vacation[]>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/current`);
+    async getCurrentVacations(page = defaultPage, limit = defaultLimit): Promise<Pagination<Vacation>> {
+        const response = await this.axiosInstance.get<Pagination<Vacation>>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/current?page=${page}&limit=${limit}`);
         return response.data;
     }
 

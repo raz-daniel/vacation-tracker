@@ -11,8 +11,10 @@ export default function List(): JSX.Element {
     const dispatch = useAppDispatch();
     const { vacations, loading, error, filterType } = useAppSelector(state => state.vacation);
     const vacationService = useService(VacationService);
+ 
 
     useEffect(() => {
+        console.log("Current filter type:", filterType);
         (async () => {
             try {
                 dispatch(setLoading(true));
@@ -35,7 +37,7 @@ export default function List(): JSX.Element {
 
                 dispatch(init(getVacations));
             } catch (error) {
-                console.error(error);
+                console.error('Failed to load vacations', error);
                 dispatch(setError('Failed to load vacations'));
             } finally {
                 dispatch(setLoading(false));
@@ -43,7 +45,7 @@ export default function List(): JSX.Element {
         }
 
         )();
-    }, [dispatch, filterType, vacationService]);
+    }, [dispatch, filterType]);
 
     const handleFilterChange = (filter: FilterType) => {
         dispatch(setFilterType(filter));
