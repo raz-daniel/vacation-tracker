@@ -18,7 +18,7 @@ declare global {
 
 export default async function fileUploader(req: Request, res: Response, next: NextFunction) {
     try {
-        if (!req.files) return next()
+        if (!req.files.image) return next()
 
         const image = req.files.image as UploadedFile
 

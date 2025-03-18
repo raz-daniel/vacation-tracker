@@ -14,6 +14,7 @@ import {
     deleteVacationParamsValidator,
     newVacationFileValidator,
     newVacationValidator,
+    paginationQueryValidator,
     updatedVacationParamsValidator,
     updateVacationFileValidator,
     updateVacationValidator
@@ -22,15 +23,16 @@ import paramsValidation from "../middlewares/param-validation";
 import validation from "../middlewares/validation";
 import filesValidation from "../middlewares/files-validation";
 import fileUploader from "../middlewares/file-uploader";
+import queryValidation from "../middlewares/query-validation";
 
 
 const vacationsRouter = Router()
 
 vacationsRouter.use(enforceAuth);
-vacationsRouter.get('/', getAllVacations)
-vacationsRouter.get('/follower', getVacationsPerFollower);
-vacationsRouter.get('/upcoming', getUpcomingVacations);
-vacationsRouter.get('/current', getCurrentVacations);
+vacationsRouter.get('/', queryValidation(paginationQueryValidator), getAllVacations)
+vacationsRouter.get('/follower', queryValidation(paginationQueryValidator), getVacationsPerFollower);
+vacationsRouter.get('/upcoming', queryValidation(paginationQueryValidator), getUpcomingVacations);
+vacationsRouter.get('/current', queryValidation(paginationQueryValidator), getCurrentVacations);
 vacationsRouter.post('/',
     validation(newVacationValidator),
     filesValidation(newVacationFileValidator),

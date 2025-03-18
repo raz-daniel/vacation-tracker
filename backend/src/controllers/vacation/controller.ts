@@ -6,9 +6,16 @@ import AppError from "../../errors/app-error";
 import { StatusCodes } from "http-status-codes";
 import socket from "../../io/io";
 import { parse } from 'json2csv';
+import Follower from "../../model/follower";
 
 export async function getAllVacations(req: Request, res: Response, next: NextFunction) {
     try {
+        const page = parseInt(req.query.page as string) || 1
+        const limit = parseInt(req.query.limit as string) || 10
+        const offset = (page - 1) * limit
+
+        const count = await Vacation.count();
+
         const vacations = await Vacation.findAll({
             include: [{
                 model: User,
@@ -24,10 +31,17 @@ export async function getAllVacations(req: Request, res: Response, next: NextFun
             group: ['Vacation.id'],
             order: [
                 ['beginDate', 'ASC']
-            ]
+            ],
+            limit: limit,
+            offset: offset
 
         })
-        res.json(vacations);
+        res.json({
+            vacations,
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        });
 
     } catch (error) {
         next(error);
@@ -102,7 +116,7 @@ export async function updateVacation(req: Request<{ id: string }, {}, {
 }
 
 
-export async function deleteVacation(req: Request<{id: string}>, res: Response, next: NextFunction) {
+export async function deleteVacation(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params;
 
     try {
@@ -126,29 +140,48 @@ export async function deleteVacation(req: Request<{id: string}>, res: Response, 
 }
 
 export async function getVacationsPerFollower(req: Request, res: Response, next: NextFunction) {
-    try {       
-        const vacations = await Vacation.findAll({
-            include: [{
-                            model: User,
-                            as: 'followers',
-                            attributes: [],
-                            through: { 
-                                attributes: [],
-                                where: {userId: req.userId}
-                            }
-                        }],
-                        attributes: {
-                            include: [
-                                [fn('COUNT', col('followers.id')), 'followerCount']
-                            ]
-                        },
-                        group: ['Vacation.id'],
-                        order: [
-                            ['beginDate', 'ASC']
-                        ]
+    try {
+        const page = parseInt(req.query.page as string) || 1
+        const limit = parseInt(req.query.limit as string) || 10
+        const offset = (page - 1) * limit
+
+        const count = await Follower.count({
+            distinct: true,
+            col: 'vacationId',
+            where: {
+                userId: req.userId
+            }
         })
 
-        res.json(vacations)
+        const vacations = await Vacation.findAll({
+            include: [{
+                model: User,
+                as: 'followers',
+                attributes: [],
+                through: {
+                    attributes: [],
+                    where: { userId: req.userId }
+                },
+                required: true
+            }],
+            attributes: {
+                include: [
+                    [fn('COUNT', col('followers.id')), 'followerCount']
+                ]
+            },
+            group: ['Vacation.id'],
+            order: [
+                ['beginDate', 'ASC']
+            ],
+            limit: limit,
+            offset: offset
+        })
+        res.json({
+            vacations,
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        });
     } catch (error) {
         next(error)
     }
@@ -156,6 +189,18 @@ export async function getVacationsPerFollower(req: Request, res: Response, next:
 
 export async function getUpcomingVacations(req: Request, res: Response, next: NextFunction) {
     try {
+        const page = parseInt(req.query.page as string) || 1
+        const limit = parseInt(req.query.limit as string) || 10
+        const offset = (page - 1) * limit
+
+        const count = await Vacation.count({
+            where: {
+                beginDate: {
+                    [Op.gt]: new Date()
+                }
+            }
+        });
+
         const vacations = await Vacation.findAll({
             where: {
                 beginDate: {
@@ -176,10 +221,17 @@ export async function getUpcomingVacations(req: Request, res: Response, next: Ne
             group: ['Vacation.id'],
             order: [
                 ['beginDate', 'ASC']
-            ]
+            ],
+            limit: limit,
+            offset: offset
 
         })
-        res.json(vacations);
+        res.json({
+            vacations,
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        });
     } catch (error) {
         next(error)
     }
@@ -187,6 +239,21 @@ export async function getUpcomingVacations(req: Request, res: Response, next: Ne
 
 export async function getCurrentVacations(req: Request, res: Response, next: NextFunction) {
     try {
+        const page = parseInt(req.query.page as string) || 1
+        const limit = parseInt(req.query.limit as string) || 10
+        const offset = (page - 1) * limit
+
+        const count = await Vacation.count({
+            where: {
+                beginDate: {
+                    [Op.lte]: new Date()
+                },
+                endDate: {
+                    [Op.gt]: new Date()
+                }
+            }
+        })
+
         const vacations = await Vacation.findAll({
             where: {
                 beginDate: {
@@ -210,10 +277,18 @@ export async function getCurrentVacations(req: Request, res: Response, next: Nex
             group: ['Vacation.id'],
             order: [
                 ['beginDate', 'ASC']
-            ]
-
+            ],
+            limit: limit,
+            offset: offset
         })
-        res.json(vacations);
+
+        res.json({
+            vacations,
+            totalItems: count,
+            totalPages: Math.ceil(count / limit),
+            currentPage: page
+        });
+
     } catch (error) {
         next(error)
     }
@@ -221,51 +296,51 @@ export async function getCurrentVacations(req: Request, res: Response, next: Nex
 
 export async function exportVacationsToCSV(req: Request, res: Response, next: NextFunction) {
     try {
-      // Check if user is admin
-      const user = await User.findByPk(req.userId);
-      if (user?.role !== 'admin') {
-        return next(new AppError(StatusCodes.FORBIDDEN, 'Only admins can export vacation data'));
-      }
-  
-      // Get all vacations with follower counts
-      const vacations = await Vacation.findAll({
-        include: [{
-          model: User,
-          as: 'followers',
-          attributes: [],
-          through: { attributes: [] }
-        }],
-        attributes: {
-          include: [
-            [fn('COUNT', col('followers.id')), 'followerCount']
-          ]
-        },
-        group: ['Vacation.id'],
-        order: [['beginDate', 'ASC']]
-      });
-  
-      // Convert to plain objects
-      const plainVacations = vacations.map(v => {
-        const plain = v.get({ plain: true });
-        // Format dates for CSV
-        plain.beginDate = new Date(plain.beginDate).toLocaleDateString();
-        plain.endDate = new Date(plain.endDate).toLocaleDateString();
-        return plain;
-      });
-  
-      // Define fields for CSV
-      const fields = ['id', 'destination', 'description', 'beginDate', 'endDate', 'price', 'followerCount'];
-      
-      // Generate CSV
-      const csv = parse(plainVacations, { fields });
-      
-      // Set headers for file download
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', 'attachment; filename="vacations.csv"');
-      
-      // Send CSV
-      res.send(csv);
+        // Check if user is admin
+        const user = await User.findByPk(req.userId);
+        if (user?.role !== 'admin') {
+            return next(new AppError(StatusCodes.FORBIDDEN, 'Only admins can export vacation data'));
+        }
+
+        // Get all vacations with follower counts
+        const vacations = await Vacation.findAll({
+            include: [{
+                model: User,
+                as: 'followers',
+                attributes: [],
+                through: { attributes: [] }
+            }],
+            attributes: {
+                include: [
+                    [fn('COUNT', col('followers.id')), 'followerCount']
+                ]
+            },
+            group: ['Vacation.id'],
+            order: [['beginDate', 'ASC']]
+        });
+
+        // Convert to plain objects
+        const plainVacations = vacations.map(v => {
+            const plain = v.get({ plain: true });
+            // Format dates for CSV
+            plain.beginDate = new Date(plain.beginDate).toLocaleDateString();
+            plain.endDate = new Date(plain.endDate).toLocaleDateString();
+            return plain;
+        });
+
+        // Define fields for CSV
+        const fields = ['id', 'destination', 'description', 'beginDate', 'endDate', 'price', 'followerCount'];
+
+        // Generate CSV
+        const csv = parse(plainVacations, { fields });
+
+        // Set headers for file download
+        res.setHeader('Content-Type', 'text/csv');
+        res.setHeader('Content-Disposition', 'attachment; filename="vacations.csv"');
+
+        // Send CSV
+        res.send(csv);
     } catch (error) {
-      next(error);
+        next(error);
     }
-  }
+}

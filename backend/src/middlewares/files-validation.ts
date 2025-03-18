@@ -7,7 +7,7 @@ export default function filesValidation(validator: ObjectSchema) {
 
     return async function (req: Request, res: Response, next: NextFunction) {
         try {
-            req.files = await validator.validateAsync(req.files)
+            req.files = await validator.validateAsync(req.files || {})
             next()
         } catch (e) {
             console.error('filesValidation Error:', e)
