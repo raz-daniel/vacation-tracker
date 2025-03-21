@@ -1,0 +1,55 @@
+.Report {
+    padding: 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+  
+  .Report h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+  .chart-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+  }
+  
+  .loading, .error, .no-data {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+  }
+  
+  .error {
+    color: #e53935;
+  }
+  
+  .no-data {
+    color: #757575;
+  }
+  
+  .export-section {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .export-button {
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s;
+  }
+  
+  .export-button:hover {
+    background-color: #388e3c;
+  }

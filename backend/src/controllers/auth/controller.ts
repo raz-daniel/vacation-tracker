@@ -33,6 +33,7 @@ export async function register(req: Request<{}, {}, {
             {
                 id: user.id,
                 firstName: user.firstName,
+                lastName: user.lastName,
                 role: user.role
             }
             , config.get<string>('app.jwtSecret'))
@@ -68,6 +69,7 @@ export async function login(req: Request<{}, {}, { email: string, password: stri
             {
                 id: user.id,
                 firstName: user.firstName,
+                lastName: user.lastName,
                 role: user.role
             }
             , config.get<string>('app.jwtSecret'))

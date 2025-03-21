@@ -397,7 +397,7 @@ export async function exportVacationsToCSV(req: Request, res: Response, next: Ne
             }],
             attributes: {
                 include: [
-                    [fn('COUNT', col('id')), 'followerCount']
+                    [fn('COUNT', col('followers.id')), 'followerCount']
                 ]
             },
             group: ['Vacation.id'],

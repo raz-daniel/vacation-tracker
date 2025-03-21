@@ -1,10 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { FilterType, init, setError, setFilterType, setLoading } from '../../../redux/vacationSlice';
 import useService from '../../../hooks/useService';
 import Card from '../card/Card';
 import './List.css';
 import VacationService from '../../../services/auth-aware/vacationService';
+import { AuthContext } from '../../auth/auth/Auth';
+import { UserRole } from '../../../models/user/User';
 
 export default function List(): JSX.Element {
     const dispatch = useAppDispatch();
@@ -12,6 +14,8 @@ export default function List(): JSX.Element {
     const vacationService = useService(VacationService);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const { role } = useContext(AuthContext)!;
+    const isAdmin = role === UserRole.ADMIN;
     
     // Create a function to load data
     const loadVacations = async () => {
@@ -106,13 +110,25 @@ export default function List(): JSX.Element {
                 <label>
                     <input
                         type='checkbox'
-                        checked={filterType === FilterType.FOLLOWED}
-                        onChange={() => handleFilterChange(
-                            filterType === FilterType.FOLLOWED ? FilterType.ALL : FilterType.FOLLOWED
-                        )}
+                        checked={filterType === FilterType.ALL}
+                        onChange={() => handleFilterChange(FilterType.ALL)}
                     />
-                    Favorites
+                    All
                 </label>
+
+                {/* Only show Favorites checkbox for non-admin users */}
+                {!isAdmin && (
+                    <label>
+                        <input
+                            type='checkbox'
+                            checked={filterType === FilterType.FOLLOWED}
+                            onChange={() => handleFilterChange(
+                                filterType === FilterType.FOLLOWED ? FilterType.ALL : FilterType.FOLLOWED
+                            )}
+                        />
+                        Favorites
+                    </label>
+                )}
 
                 <label>
                     <input
