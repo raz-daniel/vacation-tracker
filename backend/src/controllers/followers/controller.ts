@@ -74,7 +74,7 @@ export async function unFollow(req: Request<{ id: string }>, res: Response, next
             }
         })
 
-        socket.emit('unFolllow', { userId: req.userId, vacationId: id })
+        socket.emit('unFollow', { userId: req.userId, vacationId: id })
         res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         next(error)

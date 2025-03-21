@@ -1,8 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { FilterType, init, setError, setFilterType, setLoading } from '../../../redux/vacationSlice';
 import useService from '../../../hooks/useService';
-
 import Card from '../card/Card';
 import './List.css';
 import VacationService from '../../../services/auth-aware/vacationService';
@@ -11,44 +10,86 @@ export default function List(): JSX.Element {
     const dispatch = useAppDispatch();
     const { vacations, loading, error, filterType } = useAppSelector(state => state.vacation);
     const vacationService = useService(VacationService);
- 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+    
+    // Create a function to load data
+    const loadVacations = async () => {
+        console.log('Loading vacations with filter:', filterType, 'page:', currentPage);
+        try {
+            dispatch(setLoading(true));
+            let response;
 
-    useEffect(() => {
-        console.log("Current filter type:", filterType);
-        (async () => {
-            try {
-                dispatch(setLoading(true));
-                let getVacations;
-
-                switch (filterType) {
-                    case FilterType.FOLLOWED:
-                        getVacations = await vacationService.getFollowedVacations();
-                        break;
-                    case FilterType.UPCOMING:
-                        getVacations = await vacationService.getUpcomingVacations();
-                        break;
-                    case FilterType.CURRENT:
-                        getVacations = await vacationService.getCurrentVacations();
-                        break;
-                    default:
-                        getVacations = await vacationService.getAllVacations();
-                        
-                }
-
-                dispatch(init(getVacations));
-            } catch (error) {
-                console.error('Failed to load vacations', error);
-                dispatch(setError('Failed to load vacations'));
-            } finally {
-                dispatch(setLoading(false));
+            switch (filterType) {
+                case FilterType.FOLLOWED:
+                    console.log('Fetching followed vacations');
+                    response = await vacationService.getFollowedVacations(currentPage);
+                    break;
+                case FilterType.UPCOMING:
+                    console.log('Fetching upcoming vacations');
+                    response = await vacationService.getUpcomingVacations(currentPage);
+                    break;
+                case FilterType.CURRENT:
+                    console.log('Fetching current vacations');
+                    response = await vacationService.getCurrentVacations(currentPage);
+                    break;
+                default:
+                    console.log('Fetching all vacations');
+                    response = await vacationService.getAllVacations(currentPage);
             }
-        }
 
-        )();
-    }, [dispatch, filterType]);
+            console.log('Received vacations:', response.vacations);
+            dispatch(init(response.vacations));
+            setTotalPages(response.totalPages);
+        } catch (error) {
+            console.error('Failed to load vacations:', error);
+            dispatch(setError('Failed to load vacations'));
+        } finally {
+            dispatch(setLoading(false));
+        }
+    };
+
+    // Socket.io listeners would go here
+    useEffect(() => {
+        // Example: Setup socket listeners
+        // socket.on('newVacation', handleNewVacation);
+        // socket.on('updateVacation', handleUpdateVacation);
+        // socket.on('deleteVacation', handleDeleteVacation);
+        // socket.on('follow', handleFollow);
+        // socket.on('unFollow', handleUnfollow);
+
+        // return () => {
+        //   socket.off('newVacation');
+        //   socket.off('updateVacation');
+        //   socket.off('deleteVacation');
+        //   socket.off('follow');
+        //   socket.off('unFollow');
+        // };
+    }, []);
+
+    // Load vacations when filter type or page changes
+    useEffect(() => {
+        loadVacations();
+    }, [dispatch, filterType, currentPage]);
 
     const handleFilterChange = (filter: FilterType) => {
+        console.log('Filter changing from', filterType, 'to', filter);
+        setCurrentPage(1); // Reset to first page when changing filters
         dispatch(setFilterType(filter));
+    };
+
+    const goToPreviousPage = () => {
+        if (currentPage > 1) {
+            console.log('Going to previous page');
+            setCurrentPage(prev => prev - 1);
+        }
+    };
+
+    const goToNextPage = () => {
+        if (currentPage < totalPages) {
+            console.log('Going to next page');
+            setCurrentPage(prev => prev + 1);
+        }
     };
 
     if (loading) {
@@ -70,8 +111,9 @@ export default function List(): JSX.Element {
                             filterType === FilterType.FOLLOWED ? FilterType.ALL : FilterType.FOLLOWED
                         )}
                     />
-                    Show Only My Favorites
+                    Favorites
                 </label>
+
                 <label>
                     <input
                         type='checkbox'
@@ -80,8 +122,9 @@ export default function List(): JSX.Element {
                             filterType === FilterType.UPCOMING ? FilterType.ALL : FilterType.UPCOMING
                         )}
                     />
-                    Show Upcoming Vacations
+                    Upcoming
                 </label>
+
                 <label>
                     <input
                         type='checkbox'
@@ -90,18 +133,43 @@ export default function List(): JSX.Element {
                             filterType === FilterType.CURRENT ? FilterType.ALL : FilterType.CURRENT
                         )}
                     />
-                    Show Active Vacations
+                    Current
                 </label>
             </div>
 
             {vacations.length === 0 ? (
                 <div className="no-vacations">No vacations found</div>
             ) : (
-                <div className='vacations-grid'>
-                    {vacations.map(vacation => (
-                        <Card key={vacation.id} vacation={vacation} />
-                    ))}
-                </div>
+                <>
+                    <div className='vacations-grid'>
+                        {vacations.map(vacation => (
+                            <Card
+                                key={vacation.id}
+                                vacation={vacation}
+                            />
+                        ))}
+                    </div>
+
+                    <div className="pagination-controls">
+                        <button
+                            onClick={goToPreviousPage}
+                            disabled={currentPage === 1}
+                            className="pagination-button"
+                        >
+                            Previous
+                        </button>
+                        <span className="pagination-info">
+                            Page {currentPage} of {totalPages}
+                        </span>
+                        <button
+                            onClick={goToNextPage}
+                            disabled={currentPage === totalPages}
+                            className="pagination-button"
+                        >
+                            Next
+                        </button>
+                    </div>
+                </>
             )}
         </div>
     );

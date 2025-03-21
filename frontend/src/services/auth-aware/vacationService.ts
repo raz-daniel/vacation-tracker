@@ -28,21 +28,37 @@ export default class VacationService extends AuthAware {
         return response.data;
     }
 
-    async addVacation(vacation: VacationDraft): Promise<Vacation> {
-        const response = await this.axiosInstance.post<Vacation>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations`, vacation, {
-                headers: {
-                    "Content-Type": 'multipart/form-data'
-                }
+    async addVacation(vacationDraft: VacationDraft): Promise<Vacation> {
+        const formData = new FormData();
+        formData.append('destination', vacationDraft.destination);
+        formData.append('description', vacationDraft.description);
+        formData.append('beginDate', vacationDraft.beginDate.toISOString());
+        formData.append('endDate', vacationDraft.endDate.toISOString());
+        formData.append('price', vacationDraft.price.toString());
+
+        // Change the field name from imageFile to image
+        if (vacationDraft.imageFile) {
+            formData.append('image', vacationDraft.imageFile);
+        }
+
+        const response = await this.axiosInstance.post<Vacation>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations`, formData, {
+            headers: {
+                "Content-Type": 'multipart/form-data'
+            }
         })
         return response.data;
     }
 
-    async updateVacation(id: string, vacation: VacationDraft): Promise<Vacation> {
-        const response = await this.axiosInstance.put<Vacation>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/${id}`, vacation, {
-            headers: {
-                "Content-Type": 'multipart/form-data'
+    async updateVacation(id: string, formData: FormData): Promise<Vacation> {
+        const response = await this.axiosInstance.put<Vacation>(
+            `${import.meta.env.VITE_REST_SERVER_URL}/vacations/${id}`, 
+            formData, 
+            {
+                headers: {
+                    "Content-Type": 'multipart/form-data'
+                }
             }
-    })
+        );
         return response.data;
     }
 

@@ -25,54 +25,55 @@ export default function Header(): JSX.Element {
             </div>
 
             <div className='nav-section'>
-                {isLoggedIn && (
+
+
+
+                {isLoggedIn && isAdmin && (
                     <>
-                        <NavLink 
-                            to="/vacations" 
-                            className={({ isActive }) => 
+                        <NavLink
+                            to="/vacations"
+                            className={({ isActive }) =>
                                 isActive ? "nav-link active" : "nav-link"
                             }
                         >
                             Vacations
                         </NavLink>
-                        {isAdmin && (
-                            <>
-                                <NavLink 
-                                    to="/vacations/add" 
-                                    className={({ isActive }) => 
-                                        isActive ? "nav-link active" : "nav-link"
-                                    }
-                                >
-                                    Add Vacation
-                                </NavLink>
-                                <NavLink 
-                                    to="/vacations/reports" 
-                                    className={({ isActive }) => 
-                                        isActive ? "nav-link active" : "nav-link"
-                                    }
-                                >
-                                    Export Reports
-                                </NavLink>
-                            </>
-                        )}
+                        <NavLink
+                            to="/vacations/add"
+                            className={({ isActive }) =>
+                                isActive ? "nav-link active" : "nav-link"
+                            }
+                        >
+                            Add Vacation
+                        </NavLink>
+                        <NavLink
+                            to="/vacations/reports"
+                            className={({ isActive }) =>
+                                isActive ? "nav-link active" : "nav-link"
+                            }
+                        >
+                            Export Reports
+                        </NavLink>
                     </>
                 )}
+
+
             </div>
 
             <div className='auth-section'>
                 {!isLoggedIn ? (
                     <>
-                        <NavLink 
-                            to="/auth/login" 
-                            className={({ isActive }) => 
+                        <NavLink
+                            to="/auth/login"
+                            className={({ isActive }) =>
                                 isActive ? "auth-link active" : "auth-link"
                             }
                         >
                             Login
                         </NavLink>
-                        <NavLink 
-                            to="/auth/register" 
-                            className={({ isActive }) => 
+                        <NavLink
+                            to="/auth/register"
+                            className={({ isActive }) =>
                                 isActive ? "auth-link active" : "auth-link"
                             }
                         >

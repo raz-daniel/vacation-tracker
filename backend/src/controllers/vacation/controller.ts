@@ -1,49 +1,136 @@
 import { NextFunction, Request, Response } from "express";
 import Vacation from "../../model/vacation";
 import User from "../../model/user";
-import { fn, col, Op } from "sequelize";
+import { fn, col, Op, literal } from "sequelize";
 import AppError from "../../errors/app-error";
 import { StatusCodes } from "http-status-codes";
 import socket from "../../io/io";
 import { parse } from 'json2csv';
 import Follower from "../../model/follower";
 
+// export async function getAllVacations(req: Request, res: Response, next: NextFunction) {
+//     try {
+//         console.log("getAllVacations called for userId:", req.userId); // Log the current user ID
+//         const page = parseInt(req.query.page as string) || 1
+//         const limit = parseInt(req.query.limit as string) || 10
+//         const offset = (page - 1) * limit
+
+//         const count = await Vacation.count();
+//         console.log(`Total vacation count: ${count}`); // Log total vacation count
+
+//         const vacations = await Vacation.findAll({
+//             include: [{
+//                 model: User,
+//                 as: 'followers',
+//                 attributes: [],
+//                 through: { attributes: [] }
+//             }],
+//             attributes: {
+//                 include: [
+//                     // Use distinct count to get accurate follower count
+//                     [fn('COUNT', fn('DISTINCT', col('followers.id'))), 'followerCount'],
+
+//                     // Add a subquery to check if current user follows this vacation
+//                     [literal(`(
+//                     SELECT COUNT(*) > 0 
+//                     FROM followers 
+//                     WHERE 
+//                         followers.vacation_id = Vacation.id AND 
+//                         followers.user_id = '${req.userId}'
+//                 )`), 'isFollowedByCurrentUser']
+//                 ]
+//             },
+//             group: ['Vacation.id'],
+//             order: [
+//                 ['beginDate', 'ASC']
+//             ],
+//             limit: limit,
+//             offset: offset
+
+//         })
+
+//         // Log each vacation's follower count and follow status
+//         console.log("Vacations with follow data:", vacations.map(v => {
+//             const plain = v.get({ plain: true });
+//             return {
+//                 id: plain.id,
+//                 destination: plain.destination,
+//                 followerCount: plain.followerCount,
+//                 isFollowedByCurrentUser: plain.isFollowedByCurrentUser
+//             };
+//         }));
+//         res.json({
+//             vacations,
+//             totalItems: count,
+//             totalPages: Math.ceil(count / limit),
+//             currentPage: page
+//         });
+
+//     } catch (error) {
+//         console.error("Error in getAllVacations:", error); // Log error details
+//         next(error);
+//     }
+// }
+
+// Replace your current getAllVacations function with this
 export async function getAllVacations(req: Request, res: Response, next: NextFunction) {
     try {
-        const page = parseInt(req.query.page as string) || 1
-        const limit = parseInt(req.query.limit as string) || 10
-        const offset = (page - 1) * limit
+        const page = parseInt(req.query.page as string) || 1;
+        const limit = parseInt(req.query.limit as string) || 10;
+        const offset = (page - 1) * limit;
 
         const count = await Vacation.count();
 
+        // Get vacations without trying to count followers in the same query
         const vacations = await Vacation.findAll({
-            include: [{
-                model: User,
-                as: 'followers',
-                attributes: [],
-                through: { attributes: [] }
-            }],
-            attributes: {
-                include: [
-                    [fn('COUNT', col('followers.id')), 'followerCount']
-                ]
-            },
-            group: ['Vacation.id'],
-            order: [
-                ['beginDate', 'ASC']
-            ],
+            order: [['beginDate', 'ASC']],
             limit: limit,
             offset: offset
+        });
 
-        })
+        // Get plain vacation objects
+        const plainVacations = vacations.map(v => v.get({ plain: true }));
+        
+        // Get follower counts for each vacation in a separate query
+        const followerCounts = await Follower.findAll({
+            attributes: [
+                'vacationId', 
+                [fn('COUNT', col('vacation_id')), 'count']
+            ],
+            group: ['vacationId']
+        });
+        
+        // Convert to a map for easy lookup
+        const countsMap = new Map();
+        followerCounts.forEach(fc => {
+            countsMap.set(fc.get('vacationId'), fc.get('count'));
+        });
+        
+        // Find which vacations the current user follows
+        const followedVacations = await Follower.findAll({
+            where: { userId: req.userId },
+            attributes: ['vacationId']
+        });
+        
+        // Get just the IDs the user follows
+        const followedIds = followedVacations.map(f => f.get('vacationId'));
+        
+        // Combine everything into the result
+        const result = plainVacations.map(vacation => ({
+            ...vacation,
+            followerCount: countsMap.get(vacation.id) || 0,
+            isFollowedByCurrentUser: followedIds.includes(vacation.id)
+        }));
+
         res.json({
-            vacations,
+            vacations: result,
             totalItems: count,
             totalPages: Math.ceil(count / limit),
             currentPage: page
         });
 
     } catch (error) {
+        console.error("Error in getAllVacations:", error);
         next(error);
     }
 }
@@ -166,7 +253,7 @@ export async function getVacationsPerFollower(req: Request, res: Response, next:
             }],
             attributes: {
                 include: [
-                    [fn('COUNT', col('followers.id')), 'followerCount']
+                    [fn('COUNT', col('id')), 'followerCount']
                 ]
             },
             group: ['Vacation.id'],
@@ -215,7 +302,7 @@ export async function getUpcomingVacations(req: Request, res: Response, next: Ne
             }],
             attributes: {
                 include: [
-                    [fn('COUNT', col('followers.id')), 'followerCount']
+                    [fn('COUNT', col('id')), 'followerCount']
                 ]
             },
             group: ['Vacation.id'],
@@ -271,7 +358,7 @@ export async function getCurrentVacations(req: Request, res: Response, next: Nex
             }],
             attributes: {
                 include: [
-                    [fn('COUNT', col('followers.id')), 'followerCount']
+                    [fn('COUNT', col('id')), 'followerCount']
                 ]
             },
             group: ['Vacation.id'],
@@ -296,13 +383,11 @@ export async function getCurrentVacations(req: Request, res: Response, next: Nex
 
 export async function exportVacationsToCSV(req: Request, res: Response, next: NextFunction) {
     try {
-        // Check if user is admin
         const user = await User.findByPk(req.userId);
         if (user?.role !== 'admin') {
             return next(new AppError(StatusCodes.FORBIDDEN, 'Only admins can export vacation data'));
         }
 
-        // Get all vacations with follower counts
         const vacations = await Vacation.findAll({
             include: [{
                 model: User,
@@ -312,7 +397,7 @@ export async function exportVacationsToCSV(req: Request, res: Response, next: Ne
             }],
             attributes: {
                 include: [
-                    [fn('COUNT', col('followers.id')), 'followerCount']
+                    [fn('COUNT', col('id')), 'followerCount']
                 ]
             },
             group: ['Vacation.id'],

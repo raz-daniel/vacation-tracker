@@ -9,16 +9,13 @@ import Edit from "../../vacations/edit/Edit";
 import Report from "../../vacations/report/Report";
 
 
-
-
 export default function Routing(): JSX.Element {
 
     const { role, isLoading } = useContext(AuthContext)!
     const isAdmin = role === UserRole.ADMIN
-    console.log(isAdmin)
 
     if (isLoading) {
-        return <div>Loading...</div>; // Or any loading component you prefer
+        return <div>Loading...</div>
     }
 
     return (

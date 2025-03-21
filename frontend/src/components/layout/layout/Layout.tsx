@@ -9,10 +9,14 @@ import Login from '../../auth/login/Login'
 import { Route, Routes, Navigate } from 'react-router-dom'
 
 export default function Layout(): JSX.Element {
-    const { jwt, firstName } = useContext(AuthContext)!
+    const { jwt, firstName, isLoading  } = useContext(AuthContext)!
     const isLoggedIn = !!jwt && !!firstName
-
+    
+    if (isLoading) {
+        return <div className="loading-spinner">Loading...</div>
+    }
     return (
+
         <div className='Layout'>
             <header>
                 <Header />

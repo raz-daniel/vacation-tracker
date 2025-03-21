@@ -58,15 +58,49 @@ export const vacationSlice = createSlice({
             state.error = action.payload;
         },
 
+        // toggleVacationFollow: (state, action: PayloadAction<string>) => {
+        //     const vacation = state.vacations.find(v => v.id === action.payload)
+        //     console.log('Redux toggle - Found vacation:', vacation?.id);
+
+        //     if (vacation) {
+        //         console.log('Before toggle - isFollowed:', vacation.isFollowedByCurrentUser, 'count:', vacation.followerCount);
+
+        //         // Update follower count based on current state
+        //         if (vacation.isFollowedByCurrentUser) {
+        //             // User is currently following, will unfollow
+        //             vacation.followerCount = Math.max(0, vacation.followerCount - 1);
+        //         } else {
+        //             // User is not following, will follow
+        //             vacation.followerCount += 1;
+        //         }
+
+        //         // Toggle the follow state
+        //         vacation.isFollowedByCurrentUser = !vacation.isFollowedByCurrentUser;
+
+        //         console.log('After toggle - isFollowed:', vacation.isFollowedByCurrentUser, 'count:', vacation.followerCount);
+
+        //     }
+        // }
+
+        // Replace your current toggleVacationFollow reducer with this
         toggleVacationFollow: (state, action: PayloadAction<string>) => {
-            const vacation = state.vacations.find(v => v.id === action.payload)
+            const vacation = state.vacations.find(v => v.id === action.payload);
+
             if (vacation) {
-                const { isFollowedByCurrentUser } = vacation
-                
-                vacation.isFollowedByCurrentUser = !isFollowedByCurrentUser
-                vacation.followerCount += isFollowedByCurrentUser ? 1 : -1
+                // Update follower count based on current follow state
+                if (vacation.isFollowedByCurrentUser) {
+                    // User is currently following, will unfollow
+                    vacation.followerCount = Math.max(0, vacation.followerCount - 1);
+                } else {
+                    // User is not following, will follow
+                    vacation.followerCount += 1;
+                }
+
+                // Toggle the follow state
+                vacation.isFollowedByCurrentUser = !vacation.isFollowedByCurrentUser;
             }
         }
+
     }
 });
 

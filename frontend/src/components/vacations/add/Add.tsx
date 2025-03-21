@@ -1,18 +1,24 @@
 import { useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
+
+
 import './Add.css'
+import VacationService from '../../../services/auth-aware/vacationService';
+import useService from '../../../hooks/useService';
+import VacationDraft from '../../../models/vacation/VacationDraft';
 
 interface VacationForm {
     destination: string;
     description: string;
-    startDate: string;
+    beginDate: string;
     endDate: string;
     price: number;
     image: FileList;
 }
 
 export default function Add(): JSX.Element {
+    const vacationService = useService(VacationService);
     const { register, handleSubmit, formState: { errors } } = useForm<VacationForm>();
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -22,13 +28,25 @@ export default function Add(): JSX.Element {
         try {
             setError('');
             setLoading(true);
+            console.log("Image file:", vacation.image, vacation.image?.[0]);  // Debug log
+            // Create a VacationDraft object
+            const vacationDraft: VacationDraft = {
+                destination: vacation.destination,
+                description: vacation.description,
+                beginDate: new Date(vacation.beginDate), // Convert string to Date
+                endDate: new Date(vacation.endDate),     // Convert string to Date
+                price: vacation.price,
+                imageFile: vacation.image?.[0]  // Use the first file from FileList
+            };
 
-            // TODO: Add your API call here
-            console.log('Vacation data:', vacation);
-
+            console.log("Vacation draft:", vacationDraft);  // Debug log
+            // Call your service
+            await vacationService.addVacation(vacationDraft);
             navigate('/vacations');
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (err: any) {
-            setError(err.message || 'Failed to add vacation');
+            console.error("Error details:", err);  // More detailed error logging
+            setError(err.response?.data?.message || err.message || 'Failed to add vacation');
         } finally {
             setLoading(false);
         }
@@ -38,16 +56,16 @@ export default function Add(): JSX.Element {
         <div className='Add'>
             <div className="form-container">
                 <h2>Add New Vacation</h2>
-                
+
                 {error && <div className="error">{error}</div>}
-                
+
                 <form onSubmit={handleSubmit(submit)}>
                     <div className="form-group">
                         <label htmlFor="destination">Destination</label>
                         <input
                             id="destination"
                             type="text"
-                            {...register("destination", { 
+                            {...register("destination", {
                                 required: "Destination is required",
                                 minLength: { value: 2, message: "Destination must be at least 2 characters" }
                             })}
@@ -59,7 +77,7 @@ export default function Add(): JSX.Element {
                         <label htmlFor="description">Description</label>
                         <textarea
                             id="description"
-                            {...register("description", { 
+                            {...register("description", {
                                 required: "Description is required",
                                 minLength: { value: 10, message: "Description must be at least 10 characters" }
                             })}
@@ -68,16 +86,16 @@ export default function Add(): JSX.Element {
                     </div>
 
                     <div className="form-group">
-                        <label htmlFor="startDate">Start Date</label>
+                        <label htmlFor="beginDate">Begin Date</label>
                         <input
-                            id="startDate"
+                            id="beginDate"
                             type="date"
-                            {...register("startDate", { 
+                            {...register("beginDate", {
                                 required: "Start date is required",
                                 validate: value => new Date(value) >= new Date() || "Start date must be in the future"
                             })}
                         />
-                        {errors.startDate && <span className="error-message">{errors.startDate.message}</span>}
+                        {errors.beginDate && <span className="error-message">{errors.beginDate?.message}</span>}
                     </div>
 
                     <div className="form-group">
@@ -85,10 +103,10 @@ export default function Add(): JSX.Element {
                         <input
                             id="endDate"
                             type="date"
-                            {...register("endDate", { 
+                            {...register("endDate", {
                                 required: "End date is required",
-                                validate: (value, formValues) => 
-                                    new Date(value) > new Date(formValues.startDate) || 
+                                validate: (value, formValues) =>
+                                    new Date(value) > new Date(formValues.beginDate) ||
                                     "End date must be after start date"
                             })}
                         />
@@ -101,7 +119,7 @@ export default function Add(): JSX.Element {
                             id="price"
                             type="number"
                             step="0.01"
-                            {...register("price", { 
+                            {...register("price", {
                                 required: "Price is required",
                                 min: { value: 0, message: "Price must be positive" }
                             })}
@@ -115,7 +133,7 @@ export default function Add(): JSX.Element {
                             id="image"
                             type="file"
                             accept="image/*"
-                            {...register("image", { 
+                            {...register("image", {
                                 required: "Image is required"
                             })}
                         />
