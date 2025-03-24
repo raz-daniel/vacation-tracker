@@ -37,7 +37,14 @@ export async function follow(req: Request<{ id: string }>, res: Response, next: 
             vacationId: id
         })
 
-        socket.emit(SocketMessages.FOLLOW, { userId: req.userId, vacationId: id });
+        console.log("Emitting FOLLOW event:", { vacationId: id, userId: req.userId });
+        socket.emit(SocketMessages.FOLLOW, {
+            from: req.headers['x-client-id'],
+            data: {
+              vacationId: id,
+              userId: req.userId
+            }
+          });
         
         res.status(StatusCodes.CREATED).json({ message: 'Vacation followed successfully' });
     } catch (error) {
@@ -76,8 +83,16 @@ export async function unFollow(req: Request<{ id: string }>, res: Response, next
             }
         })
 
-        socket.emit(SocketMessages.UNFOLLOW, { userId: req.userId, vacationId: id });
-        
+        console.log("Emitting UNFOLLOW event:", { vacationId: id, userId: req.userId });
+
+        socket.emit(SocketMessages.UNFOLLOW, {
+            from: req.headers['x-client-id'],
+            data: {
+              vacationId: id,
+              userId: req.userId
+            }
+          });
+
         res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         next(error)
