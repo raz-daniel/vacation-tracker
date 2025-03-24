@@ -1,3 +1,4 @@
+import './Card.css';
 import { useContext, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import useService from '../../../hooks/useService';
@@ -6,69 +7,47 @@ import { AuthContext } from '../../../components/auth/auth/Auth';
 import { UserRole } from '../../../models/user/User';
 import FollowerService from '../../../services/auth-aware/followerService';
 import VacationService from '../../../services/auth-aware/vacationService';
-import './Card.css';
 import { useAppDispatch } from '../../../redux/hooks';
 import { removeVacation, toggleVacationFollow } from '../../../redux/vacationSlice';
+import useUserId from '../../../hooks/useUserId';
 
 interface CardProps {
     vacation: Vacation;
 }
 
 export default function Card({ vacation }: CardProps): JSX.Element {
-    console.log('Card rendering with vacation:', vacation);
-
-    const { description, beginDate, endDate, imageUrl, destination, followerCount, isFollowedByCurrentUser, price, id } = vacation;
+    const dispatch = useAppDispatch();
+    const { description, beginDate, endDate, imageUrl, destination, price, id, followers } = vacation;
     const { role } = useContext(AuthContext)!;
     const isAdmin = role === UserRole.ADMIN;
     const isUser = role === UserRole.USER;
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const currentUserId = useUserId();
+
+    const FollowersCount = followers?.length || 0;
+    const isFollowed = followers?.some(follower => follower.id === currentUserId) || false;
+
     const followerService = useService(FollowerService);
     const vacationService = useService(VacationService);
-    const dispatch = useAppDispatch();
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
-    // Toggle follow status
     const handleToggleFollow = async () => {
-        console.log('Toggle follow clicked - Before:', {
-            isFollowedByCurrentUser,
-            followerCount,
-            id
-        });
-        // Store current state to use for API call
-        const wasFollowed = isFollowedByCurrentUser;
-
         try {
-            // Immediately update UI via Redux
-            dispatch(toggleVacationFollow(id));
-            console.log('Dispatched toggleVacationFollow, new state in Redux should be:', !wasFollowed);
-
-            // Make API call based on original state
-            if (wasFollowed) {
-                console.log('Calling unfollowVacation API for:', id);
+            if (isFollowed) {
                 await followerService.unfollowVacation(id);
             } else {
-                console.log('Calling followVacation API for:', id);
                 await followerService.followVacation(id);
             }
-
-            console.log('API call successful');
+            dispatch(toggleVacationFollow({ vacationId: id, userId: currentUserId }));
         } catch (error) {
             console.error('Failed to toggle follow status:', error);
-            // Revert the UI change on error
-            dispatch(toggleVacationFollow(id));
-            console.log('Reverted toggleVacationFollow due to error');
         }
     };
 
     // Handle delete vacation
     const handleDeleteVacation = async () => {
         try {
-            console.log('Deleting vacation:', id);
             await vacationService.deleteVacation(id);
-            console.log('Delete API call successful');
-
-            // Update Redux state
             dispatch(removeVacation(id));
-            console.log('Dispatched removeVacation');
         } catch (error) {
             console.error('Failed to delete vacation:', error);
         } finally {
@@ -83,23 +62,16 @@ export default function Card({ vacation }: CardProps): JSX.Element {
                     <img src={imageUrl} alt={destination} />
                 </div>
 
-                {/* Replace your current likes-section with this */}
                 <div className="card-header">
                     <h3>{destination}</h3>
 
-                    {/* Only show likes section for regular users and if there are followers */}
                     {isUser && (
                         <div className="likes-section">
                             {/* Only show heart if there are followers OR the current user follows */}
-                            {(followerCount > 0 || isFollowedByCurrentUser) && (
+                            {(FollowersCount !== 0) && (
                                 <span className="heart-icon" onClick={handleToggleFollow}>
-                                    {isFollowedByCurrentUser ? '❤️' : '🤍'}
+                                    {isFollowed ? '❤️' : '🤍'} {FollowersCount}
                                 </span>
-                            )}
-
-                            {/* Only show count if there are followers */}
-                            {followerCount > 0 && (
-                                <span className="follower-count">{followerCount}</span>
                             )}
                         </div>
                     )}
@@ -115,10 +87,11 @@ export default function Card({ vacation }: CardProps): JSX.Element {
 
                     {isUser && (
                         <button
-                            className={`follow-button ${isFollowedByCurrentUser ? 'unfollow' : 'follow'}`}
+                            className={`follow-button ${isFollowed ? 'unfollow' : 'follow'}`}
                             onClick={handleToggleFollow}
+
                         >
-                            {isFollowedByCurrentUser ? 'Unfollow' : 'Follow'}
+                            {isFollowed ? 'Unfollow' : 'Follow'}
                         </button>
                     )}
                 </div>

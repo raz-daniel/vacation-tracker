@@ -7,7 +7,6 @@ import Vacation from "../model/vacation";
 
 const logging = config.get<boolean>('sequelize.logging') ? console.log : false
 
-
 const sequelize = new Sequelize({
     models: [ User, Follower, Vacation],
     dialect: 'mysql',

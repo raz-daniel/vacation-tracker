@@ -6,11 +6,10 @@ import { AuthContext } from "../components/auth/auth/Auth"
 export default function useUserId() {
     const { jwt } = useContext(AuthContext)!
 
-
     const id = useMemo(() => {
         const { id } = jwtDecode<User>(jwt)
         return id
-    }, [ jwt ])
+    }, [jwt])
 
     return id
 }

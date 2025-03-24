@@ -47,16 +47,22 @@ export default function Report() {
         setLoading(true);
         const response = await vacationService.getAllVacations();
         
+        // Add follower count to each vacation
+        const vacationsWithCounts = response.vacations.map(vacation => ({
+          ...vacation,
+          followerCount: vacation.followers?.length || 0
+        }));
+        
         // Sort by follower count descending for better visualization
-        const sortedVacations = [...response.vacations].sort(
+        const sortedVacations = [...vacationsWithCounts].sort(
           (a, b) => b.followerCount - a.followerCount
         );
-
+  
         // Only include vacations with followers
         const vacationsWithFollowers = sortedVacations.filter(
           vacation => vacation.followerCount > 0
         );
-
+  
         setChartData({
           labels: vacationsWithFollowers.map(v => v.destination),
           datasets: [
@@ -76,7 +82,7 @@ export default function Report() {
         setLoading(false);
       }
     }
-
+  
     fetchData();
   }, []);
 

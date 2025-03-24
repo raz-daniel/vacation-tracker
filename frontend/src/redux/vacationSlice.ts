@@ -1,6 +1,7 @@
 // src/redux/vacationSlice.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import Vacation from "../models/vacation/Vacation";
+import User from "../models/user/User";
 
 export enum FilterType {
     ALL = 'all',
@@ -58,46 +59,21 @@ export const vacationSlice = createSlice({
             state.error = action.payload;
         },
 
-        // toggleVacationFollow: (state, action: PayloadAction<string>) => {
-        //     const vacation = state.vacations.find(v => v.id === action.payload)
-        //     console.log('Redux toggle - Found vacation:', vacation?.id);
-
-        //     if (vacation) {
-        //         console.log('Before toggle - isFollowed:', vacation.isFollowedByCurrentUser, 'count:', vacation.followerCount);
-
-        //         // Update follower count based on current state
-        //         if (vacation.isFollowedByCurrentUser) {
-        //             // User is currently following, will unfollow
-        //             vacation.followerCount = Math.max(0, vacation.followerCount - 1);
-        //         } else {
-        //             // User is not following, will follow
-        //             vacation.followerCount += 1;
-        //         }
-
-        //         // Toggle the follow state
-        //         vacation.isFollowedByCurrentUser = !vacation.isFollowedByCurrentUser;
-
-        //         console.log('After toggle - isFollowed:', vacation.isFollowedByCurrentUser, 'count:', vacation.followerCount);
-
-        //     }
-        // }
-
-        // Replace your current toggleVacationFollow reducer with this
-        toggleVacationFollow: (state, action: PayloadAction<string>) => {
-            const vacation = state.vacations.find(v => v.id === action.payload);
-
-            if (vacation) {
-                // Update follower count based on current follow state
-                if (vacation.isFollowedByCurrentUser) {
-                    // User is currently following, will unfollow
-                    vacation.followerCount = Math.max(0, vacation.followerCount - 1);
+        toggleVacationFollow: (state, action: PayloadAction<{vacationId: string, userId: string}>) => {
+            const { vacationId, userId } = action.payload;
+            const vacation = state.vacations.find(v => v.id === vacationId);
+            
+            if (vacation && vacation.followers) {
+                // Check if user is already following
+                const userIndex = vacation.followers.findIndex(f => f.id === userId);
+                
+                if (userIndex !== -1) {
+                    // User is following, remove them
+                    vacation.followers.splice(userIndex, 1);
                 } else {
-                    // User is not following, will follow
-                    vacation.followerCount += 1;
+                    // User is not following, add them
+                    vacation.followers.push({ id: userId } as User);
                 }
-
-                // Toggle the follow state
-                vacation.isFollowedByCurrentUser = !vacation.isFollowedByCurrentUser;
             }
         }
 

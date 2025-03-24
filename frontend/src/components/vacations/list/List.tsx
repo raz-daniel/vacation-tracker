@@ -1,49 +1,46 @@
+import './List.css';
 import { useContext, useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../redux/hooks';
 import { FilterType, init, setError, setFilterType, setLoading } from '../../../redux/vacationSlice';
 import useService from '../../../hooks/useService';
 import Card from '../card/Card';
-import './List.css';
+
 import VacationService from '../../../services/auth-aware/vacationService';
 import { AuthContext } from '../../auth/auth/Auth';
 import { UserRole } from '../../../models/user/User';
 
 export default function List(): JSX.Element {
+
     const dispatch = useAppDispatch();
+    const { role } = useContext(AuthContext)!;
+    const isAdmin = role === UserRole.ADMIN;
+
     const { vacations, loading, error, filterType } = useAppSelector(state => state.vacation);
     const vacationService = useService(VacationService);
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
-    const { role } = useContext(AuthContext)!;
-    const isAdmin = role === UserRole.ADMIN;
-    
-    // Create a function to load data
+
     const loadVacations = async () => {
-        console.log('Loading vacations with filter:', filterType, 'page:', currentPage);
         try {
             dispatch(setLoading(true));
             let response;
 
             switch (filterType) {
                 case FilterType.FOLLOWED:
-                    console.log('Fetching followed vacations');
                     response = await vacationService.getFollowedVacations(currentPage);
                     break;
                 case FilterType.UPCOMING:
-                    console.log('Fetching upcoming vacations');
                     response = await vacationService.getUpcomingVacations(currentPage);
                     break;
                 case FilterType.CURRENT:
-                    console.log('Fetching current vacations');
                     response = await vacationService.getCurrentVacations(currentPage);
                     break;
                 default:
-                    console.log('Fetching all vacations');
                     response = await vacationService.getAllVacations(currentPage);
             }
 
-            console.log('Received vacations:', response.vacations);
             dispatch(init(response.vacations));
+            console.log('Vacations data from API:', response);
             setTotalPages(response.totalPages);
         } catch (error) {
             console.error('Failed to load vacations:', error);
@@ -53,45 +50,23 @@ export default function List(): JSX.Element {
         }
     };
 
-    // Socket.io listeners would go here
-    useEffect(() => {
-        // Example: Setup socket listeners
-        // socket.on('newVacation', handleNewVacation);
-        // socket.on('updateVacation', handleUpdateVacation);
-        // socket.on('deleteVacation', handleDeleteVacation);
-        // socket.on('follow', handleFollow);
-        // socket.on('unFollow', handleUnfollow);
-
-        // return () => {
-        //   socket.off('newVacation');
-        //   socket.off('updateVacation');
-        //   socket.off('deleteVacation');
-        //   socket.off('follow');
-        //   socket.off('unFollow');
-        // };
-    }, []);
-
-    // Load vacations when filter type or page changes
     useEffect(() => {
         loadVacations();
     }, [dispatch, filterType, currentPage]);
 
     const handleFilterChange = (filter: FilterType) => {
-        console.log('Filter changing from', filterType, 'to', filter);
-        setCurrentPage(1); // Reset to first page when changing filters
+        setCurrentPage(1);
         dispatch(setFilterType(filter));
     };
 
     const goToPreviousPage = () => {
         if (currentPage > 1) {
-            console.log('Going to previous page');
             setCurrentPage(prev => prev - 1);
         }
     };
 
     const goToNextPage = () => {
         if (currentPage < totalPages) {
-            console.log('Going to next page');
             setCurrentPage(prev => prev + 1);
         }
     };
