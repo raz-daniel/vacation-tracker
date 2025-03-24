@@ -1,94 +1,75 @@
-import { createContext, PropsWithChildren, useEffect, useState } from "react";
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from "react";
 import { io } from "socket.io-client";
-import { useAppDispatch } from "../../redux/hooks";
 import { v4 } from "uuid";
-import SocketMessages from "../../../../lib/socket-enums/src/socket-enums"
-import useUserId from "../../hooks/useUserId";
-import Vacation from "../../models/vacation/Vacation";
-import { addVacation, removeVacation, toggleVacationFollow, updateVacation } from "../../redux/vacationSlice";
+import { AuthContext } from "../../components/auth/auth/Auth";
+import SocketMessages from "../../../../lib/socket-enums/src/socket-enums";
+import { useAppDispatch } from "../../redux/hooks";
+import { addVacation, removeVacation, updateVacation } from "../../redux/vacationSlice";
 
-interface SocketContextInterface {
-    xClientId: string
-}
-
-export const SocketContext = createContext<SocketContextInterface>({
-    xClientId: ''
-})
+// Simple context with just the client ID
+export const SocketContext = createContext<{ xClientId: string }>({
+  xClientId: ""
+});
 
 export default function Io(props: PropsWithChildren): JSX.Element {
+  const { children } = props;
+  const [xClientId] = useState<string>(v4());
+  const { jwt } = useContext(AuthContext)!;
+  const dispatch = useAppDispatch();
 
-    const { children } = props
-    const [xClientId] = useState<string>(v4())
-    const value = { xClientId }
-    const currentUserId = useUserId()
-    const dispatch = useAppDispatch()
+  useEffect(() => {
+    // Only connect if user is logged in
+    if (!jwt) return;
 
-    useEffect(() => {
-        const socket = io(import.meta.env.VITE_IO_SERVER_URL)
+    try {
+      const socket = io(import.meta.env.VITE_IO_SERVER_URL);
 
-        socket.on('connect', () => {
-            console.log('Connected to Socket.io server');
-        });
+      socket.on("connect", () => {
+        console.log("Connected to Socket.io server");
+      });
 
-        socket.on('connect_error', (error) => {
-            console.error('Socket.io connection error:', error);
-        });
+      socket.on("connect_error", (error) => {
+        console.error("Socket.io connection error:", error);
+      });
 
-        socket.onAny((eventName, payload) => {
+      // Handle events - only respond to events from other clients
+      socket.onAny((eventName, payload) => {
+        if (payload.from === xClientId) return;
 
-            console.log(eventName, payload)
-
-
-            switch (eventName) {
-                case SocketMessages.NEW_VACATION: {
-                    const newVacation = payload.data as Vacation
-                    dispatch(addVacation(newVacation))
-                    break;
-                }
-                case SocketMessages.UPDATE_VACATION: {
-                    const updatedVacation = payload.data as Vacation
-                    dispatch(updateVacation(updatedVacation))
-                    break;
-                }
-                case SocketMessages.DELETE_VACATION: {
-                    const { id } = payload.data
-                    dispatch(removeVacation(id))
-                    break;
-                }
-                case SocketMessages.FOLLOW: {
-                    const vacationId = payload.data.vacationId
-                    console.log('Received FOLLOW event for vacation:', vacationId);
-
-                    const userId = payload.data.userId || "some-user-id";
-                    console.log('Dispatching toggleVacationFollow with:', { vacationId: vacationId, userId });
-
-                    dispatch(toggleVacationFollow({ vacationId, userId }))
-                    break;
-                }
-                case SocketMessages.UNFOLLOW: {
-                    const vacationId = payload.data.vacationId
-                    console.log('Received UNFOLLOW event for vacation:', vacationId);
-
-                    const userId = payload.data.userId || "some-user-id";
-                    console.log('Dispatching toggleVacationUNFollow with:', { vacationId: vacationId, userId });
-
-                    dispatch(toggleVacationFollow({ vacationId, userId }))
-                    break;
-                }
-            }
-
-        })
-
-        return () => {
-            socket.disconnect()
+        try {
+          switch (eventName) {
+            case SocketMessages.NEW_VACATION:
+              if (payload.data?.id) {
+                dispatch(addVacation(payload.data));
+              }
+              break;
+            case SocketMessages.UPDATE_VACATION:
+              if (payload.data?.id) {
+                dispatch(updateVacation(payload.data));
+              }
+              break;
+            case SocketMessages.DELETE_VACATION:
+              if (payload.data?.id) {
+                dispatch(removeVacation(payload.data.id));
+              }
+              break;
+          }
+        } catch (error) {
+          console.error("Error handling socket event:", error);
         }
+      });
 
-    }, [dispatch, xClientId, currentUserId])
+      return () => {
+        socket.disconnect();
+      };
+    } catch (error) {
+      console.error("Socket initialization error:", error);
+    }
+  }, [dispatch, xClientId, jwt]);
 
-    return (
-        <SocketContext.Provider value={value}>
-            {children}
-        </SocketContext.Provider>
-    )
-
+  return (
+    <SocketContext.Provider value={{ xClientId }}>
+      {children}
+    </SocketContext.Provider>
+  );
 }

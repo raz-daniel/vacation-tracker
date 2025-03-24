@@ -5,6 +5,7 @@ import { fn, col, Op } from "sequelize";
 import AppError from "../../errors/app-error";
 import { StatusCodes } from "http-status-codes";
 import socket from "../../io/io";
+import SocketMessages from "../../../../lib/socket-enums/src/socket-enums"
 
 export async function getAllVacations(req: Request, res: Response, next: NextFunction) {
     try {
@@ -54,7 +55,9 @@ export async function createVacation(req: Request<{}, {}, {
         }
 
         const vacation = await Vacation.create(vacationData)
-        socket.emit('newVacation', vacation)
+
+        socket.emit(SocketMessages.NEW_VACATION, vacation)
+        
         res.status(StatusCodes.CREATED).json(vacation);
 
     } catch (error) {
@@ -91,7 +94,7 @@ export async function updateVacation(req: Request<{ id: string }, {}, {
         }
 
         await vacation.update(updatedData);
-        socket.emit("updateVacation", vacation)
+        socket.emit(SocketMessages.UPDATE_VACATION, vacation)
         res.json(vacation);
 
     } catch (error) {
@@ -117,7 +120,7 @@ export async function deleteVacation(req: Request<{ id: string }>, res: Response
         }
 
         await vacation.destroy();
-        socket.emit('deleteVacation', id);
+        socket.emit(SocketMessages.DELETE_VACATION, id)
         res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         next(error);

@@ -5,6 +5,7 @@ import { StatusCodes } from "http-status-codes";
 import Vacation from "../../model/vacation";
 import Follower from "../../model/follower";
 import socket from "../../io/io";
+import SocketMessages from "../../../../lib/socket-enums/src/socket-enums"
 
 export async function follow(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params
@@ -36,7 +37,8 @@ export async function follow(req: Request<{ id: string }>, res: Response, next: 
             vacationId: id
         })
 
-        socket.emit('follow', { userId: req.userId, vacationId: id });
+        socket.emit(SocketMessages.FOLLOW, { userId: req.userId, vacationId: id });
+        
         res.status(StatusCodes.CREATED).json({ message: 'Vacation followed successfully' });
     } catch (error) {
         next(error)
@@ -74,7 +76,8 @@ export async function unFollow(req: Request<{ id: string }>, res: Response, next
             }
         })
 
-        socket.emit('unFollow', { userId: req.userId, vacationId: id })
+        socket.emit(SocketMessages.UNFOLLOW, { userId: req.userId, vacationId: id });
+        
         res.status(StatusCodes.NO_CONTENT).send();
     } catch (error) {
         next(error)

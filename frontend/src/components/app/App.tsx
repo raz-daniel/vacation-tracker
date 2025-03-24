@@ -7,6 +7,7 @@ import './App.css'
 import { Provider } from 'react-redux';
 import Auth from '../auth/auth/Auth';
 import store from '../../redux/store';
+import Io from '../io/Io';
 
 
 export default function App(): JSX.Element {
@@ -16,7 +17,9 @@ export default function App(): JSX.Element {
       <BrowserRouter>
         <Provider store={store}>
           <Auth>
+            <Io>
               <Layout />
+            </Io>
           </Auth>
         </Provider>
       </BrowserRouter>

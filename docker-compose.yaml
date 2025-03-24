@@ -3,7 +3,7 @@ version: '3.8'
 services:
 
   backend:
-    container_name: cloth-store-backend
+    container_name: vacation-tracker-backend
     ports:
      - 3000:3000
     environment:
@@ -15,13 +15,13 @@ services:
 
 
   frontend:
-    container_name: cloth-store-frontend
+    container_name: vacation-tracker-frontend
     ports:
       - 5173:80
     build: ./frontend
 
   database:
-    container_name: cloth-store-database
+    container_name: vacation-tracker-database
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
       - MYSQL_DATABASE=clothstore
@@ -30,9 +30,26 @@ services:
       - 3306:3306
     build: ./database
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
       interval: 1m30s
       timeout: 30s
       retries: 5
       start_period: 60s
+
+  
+  io:
+    container_name: vacation-tracker-io
+    ports:
+      - 3003:3003
+    build: ./io
+    
+  localstack: 
+   container_name: vacation-tracker-localstack
+   ports:
+     - 127.0.0.1:4566:4566
+     - 127.0.0.1:4510-4559:4510-4559
+   image: localstack/localstack
+
+
+
 
