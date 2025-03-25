@@ -40,7 +40,7 @@ export default function Io(props: PropsWithChildren): JSX.Element {
 
                 console.log(`eventName: ${eventName}, payload: ${payload}`)
                 console.log(`xClientId: ${xClientId}`)
-                console.log(`payload.from: ${payload}`)
+                
 
                 if (payload.from !== xClientId) {
                 
@@ -68,6 +68,7 @@ export default function Io(props: PropsWithChildren): JSX.Element {
 
                             console.log(`Received ${eventName} full payload:`, payload);
                             console.log(`Payload data:`, payload.data);
+                            console.log(`payload.from: ${payload.from}`)
                             // Extract the data we need
                             if (payload.data) {
                                 const { vacationId, userId } = payload.data;
@@ -80,6 +81,7 @@ export default function Io(props: PropsWithChildren): JSX.Element {
                             break;
 
                         case SocketMessages.UNFOLLOW:
+                            console.log(`payload.from: ${payload.from}`)
                             console.log(`Received ${eventName} full payload:`, payload);
                             console.log(`Payload data:`, payload.data);
                             // Extract the data we need

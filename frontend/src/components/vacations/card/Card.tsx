@@ -8,7 +8,7 @@ import { UserRole } from '../../../models/user/User';
 import FollowerService from '../../../services/auth-aware/followerService';
 import VacationService from '../../../services/auth-aware/vacationService';
 import { useAppDispatch } from '../../../redux/hooks';
-import { removeVacation } from '../../../redux/vacationSlice';
+import { removeVacation, toggleVacationFollow } from '../../../redux/vacationSlice';
 import useUserId from '../../../hooks/useUserId';
 
 interface CardProps {
@@ -37,8 +37,7 @@ export default function Card({ vacation }: CardProps): JSX.Element {
             } else {
                 await followerService.followVacation(id);
             }
-            // dispatch(toggleVacationFollow({ vacationId: id, userId: currentUserId }));
-            // dispatch(toggleVacationFollow({ vacationId, userId }));
+            dispatch(toggleVacationFollow({ vacationId: id, userId: currentUserId }));
         } catch (error) {
             console.error('Failed to toggle follow status:', error);
         }
