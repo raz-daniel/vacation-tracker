@@ -5,7 +5,8 @@ import { StatusCodes } from "http-status-codes";
 import Vacation from "../../model/vacation";
 import Follower from "../../model/follower";
 import socket from "../../io/io";
-import SocketMessages from "../../../../lib/socket-enums/src/socket-enums"
+import SocketMessages from "socket-enums-vt-razdaniel";
+
 
 export async function follow(req: Request<{ id: string }>, res: Response, next: NextFunction) {
     const { id } = req.params

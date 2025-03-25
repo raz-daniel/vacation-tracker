@@ -24,13 +24,13 @@ services:
     container_name: vacation-tracker-database
     environment:
       - MYSQL_ALLOW_EMPTY_PASSWORD=1
-      - MYSQL_DATABASE=clothstore
+      - MYSQL_DATABASE=vacation_tracker_db
       - MYSQL_TCP_PORT=3306
     ports: 
       - 3306:3306
     build: ./database
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 1m30s
       timeout: 30s
       retries: 5

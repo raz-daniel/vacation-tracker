@@ -2,21 +2,28 @@ import { createContext, PropsWithChildren, useContext, useEffect, useState } fro
 import { io } from "socket.io-client";
 import { v4 } from "uuid";
 import { AuthContext } from "../../components/auth/auth/Auth";
-import SocketMessages from "../../../../lib/socket-enums/src/socket-enums";
 import { useAppDispatch } from "../../redux/hooks";
 import { addVacation, removeVacation, toggleVacationFollow, updateVacation } from "../../redux/vacationSlice";
+import SocketMessages from "socket-enums-vt-razdaniel";
+
+interface SocketContextInterface {
+    xClientId: string
+}
 
 // Simple context with just the client ID
-export const SocketContext = createContext<{ xClientId: string }>({
+export const SocketContext = createContext<SocketContextInterface>({
     xClientId: ""
 });
 
 export default function Io(props: PropsWithChildren): JSX.Element {
+
     const { children } = props;
     const [xClientId] = useState<string>(v4());
-    const { jwt } = useContext(AuthContext)!;
-    const dispatch = useAppDispatch();
+    const value = { xClientId }
 
+    const { jwt } = useContext(AuthContext)!; //differ from shahar...
+    const dispatch = useAppDispatch();
+    
     useEffect(() => {
         // Only connect if user is logged in
         if (!jwt) return;
@@ -28,32 +35,37 @@ export default function Io(props: PropsWithChildren): JSX.Element {
                 console.log("Connected to Socket.io server");
             });
 
-            socket.on("connect_error", (error) => {
-                console.error("Socket.io connection error:", error);
-            });
-
             // Handle events - only respond to events from other clients
             socket.onAny((eventName, payload) => {
-                if (payload.from === xClientId) return;
 
-                try {
+                console.log(`eventName: ${eventName}, payload: ${payload}`)
+                console.log(`xClientId: ${xClientId}`)
+                console.log(`payload.from: ${payload}`)
+
+                if (payload.from !== xClientId) {
+                
                     switch (eventName) {
+
                         case SocketMessages.NEW_VACATION:
                             if (payload.data?.id) {
                                 dispatch(addVacation(payload.data));
                             }
                             break;
+
                         case SocketMessages.UPDATE_VACATION:
                             if (payload.data?.id) {
                                 dispatch(updateVacation(payload.data));
                             }
                             break;
+
                         case SocketMessages.DELETE_VACATION:
                             if (payload.data?.id) {
                                 dispatch(removeVacation(payload.data.id));
                             }
                             break;
+
                         case SocketMessages.FOLLOW:
+
                             console.log(`Received ${eventName} full payload:`, payload);
                             console.log(`Payload data:`, payload.data);
                             // Extract the data we need
@@ -66,6 +78,7 @@ export default function Io(props: PropsWithChildren): JSX.Element {
                                 }
                             }
                             break;
+
                         case SocketMessages.UNFOLLOW:
                             console.log(`Received ${eventName} full payload:`, payload);
                             console.log(`Payload data:`, payload.data);
@@ -79,9 +92,8 @@ export default function Io(props: PropsWithChildren): JSX.Element {
                                 }
                             }
                             break;
+                            
                     }
-                } catch (error) {
-                    console.error("Error handling socket event:", error);
                 }
             });
 
@@ -94,7 +106,7 @@ export default function Io(props: PropsWithChildren): JSX.Element {
     }, [dispatch, xClientId, jwt]);
 
     return (
-        <SocketContext.Provider value={{ xClientId }}>
+        <SocketContext.Provider value={ value }>
             {children}
         </SocketContext.Provider>
     );

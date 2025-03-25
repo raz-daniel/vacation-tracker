@@ -37,7 +37,8 @@ export default function Card({ vacation }: CardProps): JSX.Element {
             } else {
                 await followerService.followVacation(id);
             }
-            // dispatch(toggleVacationFollow({ vacationId: id, userId: currentUserId })); //canceled because of emits
+            // dispatch(toggleVacationFollow({ vacationId: id, userId: currentUserId }));
+            // dispatch(toggleVacationFollow({ vacationId, userId }));
         } catch (error) {
             console.error('Failed to toggle follow status:', error);
         }

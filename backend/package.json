@@ -28,6 +28,7 @@
     "mysql2": "^3.12.0",
     "sequelize": "^6.37.6",
     "sequelize-typescript": "^2.1.6",
+    "socket-enums-vt-razdaniel": "^1.0.0",
     "socket.io-client": "^4.8.1",
     "uuid": "^11.1.0"
   },

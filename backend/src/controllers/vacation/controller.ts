@@ -5,7 +5,7 @@ import { fn, col, Op } from "sequelize";
 import AppError from "../../errors/app-error";
 import { StatusCodes } from "http-status-codes";
 import socket from "../../io/io";
-import SocketMessages from "../../../../lib/socket-enums/src/socket-enums"
+import SocketMessages from "socket-enums-vt-razdaniel";
 
 export async function getAllVacations(req: Request, res: Response, next: NextFunction) {
     try {
