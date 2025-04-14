@@ -48,7 +48,10 @@ services:
    ports:
      - 127.0.0.1:4566:4566
      - 127.0.0.1:4510-4559:4510-4559
-   image: localstack/localstack
+   build: ./localstack-custom
+   environment:
+    - SERVICES=s3
+    - DEBUG=1
 
 
 
