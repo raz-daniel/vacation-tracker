@@ -52,7 +52,10 @@ services:
    environment:
     - SERVICES=s3
     - DEBUG=1
-
-
+    - PERSISTENCE=1
+    - DEFAULT_REGION=us-east-1
+   volumes:
+    - ./localstack-data:/var/lib/localstack
+    
 
 

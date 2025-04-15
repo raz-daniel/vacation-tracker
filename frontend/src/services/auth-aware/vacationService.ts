@@ -49,6 +49,11 @@ export default class VacationService extends AuthAware {
         return response.data;
     }
 
+    async getVacationById(id: string): Promise<Vacation> {
+        const response = await this.axiosInstance.get<Vacation>(`${import.meta.env.VITE_REST_SERVER_URL}/vacations/${id}`);
+        return response.data;
+    }
+    
     async updateVacation(id: string, formData: FormData): Promise<Vacation> {
         const response = await this.axiosInstance.put<Vacation>(
             `${import.meta.env.VITE_REST_SERVER_URL}/vacations/${id}`, 

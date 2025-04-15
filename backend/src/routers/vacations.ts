@@ -7,6 +7,7 @@ import {
     getAllVacations,
     getCurrentVacations,
     getUpcomingVacations,
+    getVacationById,
     getVacationsPerFollower,
     updateVacation
 } from "../controllers/vacation/controller";
@@ -33,6 +34,9 @@ vacationsRouter.get('/', queryValidation(paginationQueryValidator), getAllVacati
 vacationsRouter.get('/follower', queryValidation(paginationQueryValidator), getVacationsPerFollower);
 vacationsRouter.get('/upcoming', queryValidation(paginationQueryValidator), getUpcomingVacations);
 vacationsRouter.get('/current', queryValidation(paginationQueryValidator), getCurrentVacations);
+vacationsRouter.get('/export', exportVacationsToCSV);
+vacationsRouter.get('/:id', paramsValidation(updatedVacationParamsValidator), getVacationById);
+
 vacationsRouter.post('/',
     validation(newVacationValidator),
     filesValidation(newVacationFileValidator),
@@ -45,6 +49,5 @@ vacationsRouter.put('/:id',
     filesValidation(updateVacationFileValidator),
     fileUploader,
     updateVacation)
-vacationsRouter.get('/export', exportVacationsToCSV);
 
 export default vacationsRouter

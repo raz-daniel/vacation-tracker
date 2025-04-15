@@ -28,7 +28,8 @@ export default async function fileUploader(req: Request, res: Response, next: Ne
                 Bucket: config.get<string>('s3.bucket'),
                 Key: `${v4()}${path.extname(image.name)}`,
                 Body: image.data,
-                ContentType: image.mimetype
+                ContentType: image.mimetype,
+                ACL: 'public-read' // Make sure images are publicly accessible
             }
         })
 

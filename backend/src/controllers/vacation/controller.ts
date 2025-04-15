@@ -65,6 +65,24 @@ export async function createVacation(req: Request<{}, {}, {
     }
 }
 
+export async function getVacationById(req: Request<{ id: string }>, res: Response, next: NextFunction) {
+    const { id } = req.params;
+    
+    try {
+        const vacation = await Vacation.findByPk(id, {
+            include: [User]
+        });
+        
+        if (!vacation) {
+            return next(new AppError(StatusCodes.NOT_FOUND, 'Vacation not found'));
+        }
+        
+        res.json(vacation);
+    } catch (error) {
+        next(error);
+    }
+}
+
 export async function updateVacation(req: Request<{ id: string }, {}, {
     destination?: string;
     description?: string;

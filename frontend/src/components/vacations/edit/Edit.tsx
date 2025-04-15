@@ -30,10 +30,12 @@ export default function Edit(): JSX.Element {
     useEffect(() => {
         async function loadVacation() {
             try {
+                if (!id) return;
                 setLoading(true);
-                const response = await vacationService.getAllVacations();
-                const vacation = response.vacations.find(v => v.id === id);
-                
+                // const response = await vacationService.getAllVacations();
+                // const vacation = response.vacations.find(v => v.id === id);
+                const vacation = await vacationService.getVacationById(id)
+
                 if (!vacation) {
                     setError('Vacation not found');
                     return;

@@ -24,7 +24,8 @@ const app = express();
         console.log('Database logged in successfully')
 
         await createAppBucketIfNotExists();
-
+        console.log('S3 bucket initialized successfully');
+        
         app.use(cors())
         app.use(json())
         app.use(fileUpload())
