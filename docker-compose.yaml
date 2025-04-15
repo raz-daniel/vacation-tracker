@@ -44,18 +44,19 @@ services:
     build: ./io
     
   localstack: 
-   container_name: vacation-tracker-localstack
-   ports:
-     - 127.0.0.1:4566:4566
-     - 127.0.0.1:4510-4559:4510-4559
-   build: ./localstack-custom
-   environment:
-    - SERVICES=s3
-    - DEBUG=1
-    - PERSISTENCE=1
-    - DEFAULT_REGION=us-east-1
-   volumes:
-    - ./localstack-data:/var/lib/localstack
-    
+    container_name: vacation-tracker-localstack
+    ports:
+      - 127.0.0.1:4566:4566
+      - 127.0.0.1:4510-4559:4510-4559
+    build: ./localstack-custom
+    environment:
+      - SERVICES=s3
+      - DEBUG=1
+      - PERSISTENCE=1
+      - DEFAULT_REGION=us-east-1
+    volumes:
+      - ./localstack-data:/var/lib/localstack
+      - ./localstack-custom/scripts/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh
+      - ./localstack-custom/images:/tmp/images
 
 
