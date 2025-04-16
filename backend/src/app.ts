@@ -11,13 +11,12 @@ import { createAppBucketIfNotExists } from "./aws/aws"
 import fileUpload from "express-fileupload"
 import followersRouter from "./routers/followers"
 
-const port = config.get<string>('app.port')
-const name = config.get<string>('app.name')
+
 const db = config.get<string>('db.database')
 
 const app = express();
 
-(async () => {
+export async function start() {
     try {
         console.log(`Trying to Connect to Database: ${db}`)
         await sequelize.sync();
@@ -38,12 +37,9 @@ const app = express();
         app.use(errorLogger)
         app.use(errorResponder)
 
-        app.listen(port, () => {
-            console.log(`${name} started on port ${port}`)
-        })
     } catch (error) {
         console.log('Error resetting database', error)
     }
-})()
+}
 
-
+export default app

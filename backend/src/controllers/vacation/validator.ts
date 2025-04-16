@@ -9,7 +9,7 @@ export const newVacationValidator = Joi.object({
 })
 
 export const newVacationParamsValidator = Joi.object({
-    id: Joi.string().required()
+    id: Joi.string().uuid().required()
 });
 
 export const newVacationFileValidator = Joi.object({

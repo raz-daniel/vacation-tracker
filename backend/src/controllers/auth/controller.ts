@@ -6,7 +6,7 @@ import AppError from "../../errors/app-error";
 import { StatusCodes } from "http-status-codes";
 import { sign } from "jsonwebtoken";
 
-function hashPassword(password: string): string {
+export function hashPassword(password: string): string {
     return createHmac('sha256', config.get<string>('app.secret'))
         .update(password)
         .digest('hex')
