@@ -1,0 +1,16 @@
+{
+    "app": {
+        "port": "APP_PORT",
+        "name": "APP_NAME",
+        "secret": "APP_SECRET"
+    },
+    "db": {
+        "password": "DB_PASSWORD"
+    },
+    "sequelize": {
+        "logging": "APP_SEQUELIZE_LOGGING",
+        "sync": {
+            "force": "DB_FORCE_SYNC"
+        }
+    }
+}
